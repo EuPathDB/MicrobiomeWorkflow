@@ -1,0 +1,101 @@
+<project name="MicrobiomeWorkflow" default="MicrobiomeWorkflow-Installation" basedir=".">
+
+  <import file="${projectsDir}/ApiCommonWorkflow/build.xml" optional="true" />
+  <import file="${projectsDir}/MicrobiomeData/build.xml" optional="true" />
+
+  <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
+  <!-- oooooooooooooooooooooooooo  Dependencies  oooooooooooooooooooooooooo -->
+  <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
+
+  <target name="ApiCommonWorkflow-Checkout" unless="ApiCommonWorkflow.present">
+    <ant target="defaultProjectCheckout" inheritAll="false">
+      <property name="svnurl" value="https://www.cbil.upenn.edu/svn/apidb/ApiCommonWorkflow"/>
+      <property name="project" value="ApiCommonWorkflow"/>
+      <property name="version" value="api-august-2006"/>
+    </ant>
+  </target>
+  
+  <target name="ApiCommonData-Checkout" unless="ApiCommonData.present">
+    <ant target="defaultProjectCheckout" inheritAll="false">
+      <property name="svnurl" value="https://www.cbil.upenn.edu/svn/apidb/MicrobiomeData"/>
+      <property name="project" value="MicrobiomeData"/>
+      <property name="version" value="api-august-2006"/>
+    </ant>
+  </target>
+  
+  <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
+  <!-- oooooooooooooooooooooooooo    Checkout    oooooooooooooooooooooooooo -->
+  <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
+  <target name="MicrobiomeWorkflow-ChildCheckout">
+    <available file="../ApiCommonWorkflow" type="dir"  property="ApiCommonWorkflow.present" />
+    <antcall target="ApiCommonWorkflow-Checkout"/>
+    <available file="../ApiCommonData" type="dir"  property="ApiCommonData.present" />
+    <antcall target="ApiCommonData-Checkout"/>
+  </target>
+
+  <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
+  <!-- oooooooooooooooooooooooooo    Update    oooooooooooooooooooooooooo -->
+  <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
+  <target name="MicrobiomeWorkflow-ChildUpdate">
+    <ant target="defaultProjectUpdate">
+      <property name="project" value="ApiCommonWorkflow"/>
+      <property name="project" value="MicrobiomeData"/>
+    </ant>
+  </target>
+
+  <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
+  <!-- oooooooooooooooooooooooooo  Installation  oooooooooooooooooooooooooo -->
+  <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
+
+  <target name="MicrobiomeWorkflow-Installation" depends="ApiCommonWorkflow-Installation,
+                                                    ApiCommonData-Installation,
+                                                    MicrobiomeWorkflow/Main-Installation">
+    <ant target="defaultProjectInstall"/>
+  </target>  
+
+  <!-- ooooooooooooooooo  Installation Postprocess  ooooooooooooooooooooo -->
+
+  <target name="MicrobiomeWorkflow-Installation-postprocess">
+    <echo message="Postprocessing the MicrobiomeWorkflow installation"/>
+
+    <replace dir="${targetDir}/bin" 
+             propertyFile="${targetDir}/config/replacements.prop" >
+      <include name="**/*" />
+      <replacefilter token="@perl@" property="perl"/>
+    </replace>
+  </target>
+
+
+  <!-- ooooooooooooooooooooooo  Install Components  ooooooooooooooooooooooo -->
+
+  <target name="MicrobiomeWorkflow/Main-Installation" depends="ProjectTree">
+    <ant target="defaultComponentInstall">
+      <property name="project" value="MicrobiomeWorkflow"/>
+      <property name="component" value="Main"/>
+    </ant>
+  </target>  
+
+  <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
+  <!-- oooooooooooooooooooooooooo  Distributable  ooooooooooooooooooooooooo -->
+  <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
+
+  <target name="MicrobiomeWorkflow-Distributable" depends="ProjectTree">
+
+    <copy todir="${targetDir}">
+      <fileset dir="${projectsDir}" >
+        <exclude name="**/.svn/*" />
+      </fileset>
+    </copy>
+  </target>
+
+  <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
+  <!-- oooooooooooooooooooooooooo  ProjectTree  ooooooooooooooooooooooooooo -->
+  <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
+
+  <target name="ProjectTree" if="${checkout}">
+    <ant target="projectCheckOut"/>
+  </target>  
+
+</project>
+
+

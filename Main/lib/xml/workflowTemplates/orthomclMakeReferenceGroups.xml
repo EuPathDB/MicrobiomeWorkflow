@@ -1,0 +1,154 @@
+<workflowGraph name="">
+  <param name="parentDataDir"/>
+  <param name="outputGroupsDir"/>
+  <param name="outputGoodProteinsFile"/>
+  <param name="oldReleasesSequenceFilesDir"/>
+  <param name="oldReleasesGroupFilesDir"/>
+  <param name="groupIdPrefix"/>
+  <param name="groupIdStart"/>
+
+  <constant name="dataDir">$$parentDataDir$$/makeReferenceGroups</constant>
+  <constant name="proteomesDir">$$dataDir$$/referenceProteomes</constant>
+  <constant name="proteomeDatasetsDir">$$dataDir$$/proteomeDatasets</constant>
+
+  <step name="makeDataDir" stepClass="ReFlow::StepClasses::MakeDataDir">
+    <paramValue name="dataDir">$$dataDir$$</paramValue>
+  </step>
+
+  <step name="mirrorDataDirToCluster" stepClass="ReFlow::StepClasses::MirrorToComputeCluster">
+    <paramValue name="fileOrDirToMirror">$$dataDir$$</paramValue>
+    <depends name="makeDataDir"/>
+  </step>
+
+  <step name="makeProteomesDir" stepClass="ReFlow::StepClasses::MakeDataDir">
+    <paramValue name="dataDir">$$proteomesDir$$</paramValue>
+    <depends name="makeDataDir"/>
+  </step>
+
+  <step name="makeProteomeDatasetsDir" stepClass="ReFlow::StepClasses::MakeDataDir">
+    <paramValue name="dataDir">$$proteomeDatasetsDir$$</paramValue>
+    <depends name="makeDataDir"/>
+  </step>
+
+  <datasetTemplate class="manualDeliveryReferenceProteome">
+    <prop name="abbrev"/>
+    <prop name="oldAbbrevsList"/>
+    <subgraph name="${abbrev}_proteome" xmlFile="loadOrthomclProteome.xml">
+      <paramValue name="abbrev">${abbrev}</paramValue>
+      <paramValue name="oldAbbrevsList">${oldAbbrevsList}</paramValue>
+      <paramValue name="oldReleasesSequenceFilesDir">$$oldReleasesSequenceFilesDir$$</paramValue>
+      <paramValue name="oldReleasesGroupFilesDir">$$oldReleasesGroupFilesDir$$</paramValue>
+      <paramValue name="parentDataDir">$$proteomeDatasetsDir$$</paramValue>
+      <paramValue name="proteomesDir">$$proteomesDir$$</paramValue>
+      <depends name="makeProteomesDir"/>
+      <depends name="makeProteomeDatasetsDir"/>
+    </subgraph>
+  </datasetTemplate>
+
+  <datasetTemplate class="orthomclEuPathReferenceProteome">
+    <prop name="abbrev"/>
+    <prop name="oldAbbrevsList"/>
+    <subgraph name="${abbrev}_proteome" xmlFile="loadOrthomclProteome.xml">
+      <paramValue name="abbrev">${abbrev}</paramValue>
+      <paramValue name="oldAbbrevsList">${oldAbbrevsList}</paramValue>
+      <paramValue name="oldReleasesSequenceFilesDir">$$oldReleasesSequenceFilesDir$$</paramValue>
+      <paramValue name="oldReleasesGroupFilesDir">$$oldReleasesGroupFilesDir$$</paramValue>
+      <paramValue name="parentDataDir">$$proteomeDatasetsDir$$</paramValue>
+      <paramValue name="proteomesDir">$$proteomesDir$$</paramValue>
+      <depends name="makeProteomesDir"/>
+      <depends name="makeProteomeDatasetsDir"/>
+    </subgraph>
+
+    <!-- a bit of a hack.  reach into the proteome dataset's dir to find the aliases file provided by the Eupath proteome dataset class -->
+    <step name="${abbrev}_insertAliases" stepClass="OrthoMCLWorkflow::Main::WorkflowSteps::InsertAliases">
+      <paramValue name="externalDatabase">${abbrev}_orthomclProteome_RSRC</paramValue>
+      <paramValue name="inputMappingFile">$$proteomeDatasetsDir$$/${abbrev}_orthomclProteome_RSRC/aliases.tab</paramValue>
+      <depends name="${abbrev}_proteome"/>
+    </step>
+  </datasetTemplate>
+
+  <datasetTemplate class="orthomclUniprotReferenceProteome">
+    <prop name="abbrev"/>
+    <prop name="oldAbbrevsList"/>
+    <subgraph name="${abbrev}_proteome" xmlFile="loadOrthomclProteome.xml">
+      <paramValue name="abbrev">${abbrev}</paramValue>
+      <paramValue name="oldAbbrevsList">${oldAbbrevsList}</paramValue>
+      <paramValue name="oldReleasesSequenceFilesDir">$$oldReleasesSequenceFilesDir$$</paramValue>
+      <paramValue name="oldReleasesGroupFilesDir">$$oldReleasesGroupFilesDir$$</paramValue>
+      <paramValue name="parentDataDir">$$proteomeDatasetsDir$$</paramValue>
+      <paramValue name="proteomesDir">$$proteomesDir$$</paramValue>
+      <depends name="makeProteomesDir"/>
+      <depends name="makeProteomeDatasetsDir"/>
+    </subgraph>
+
+    <!-- a bit of a hack.  reach into the proteome dataset's dir to find the aliases file provided by the Eupath proteome dataset class -->
+    <step name="${abbrev}_insertAliases" stepClass="OrthoMCLWorkflow::Main::WorkflowSteps::InsertAliases">
+      <paramValue name="externalDatabase">${abbrev}_orthomclProteome_RSRC</paramValue>
+      <paramValue name="inputMappingFile">$$proteomeDatasetsDir$$/${abbrev}_orthomclProteome_RSRC/aliases.tab</paramValue>
+      <depends name="${abbrev}_proteome"/>
+    </step>
+
+  </datasetTemplate>
+
+  <datasetTemplate class="referenceProteomeEupathDB_EC">
+    <prop name="abbrev"/>
+
+    <subgraph name="${abbrev}_enzymes" xmlFile="loadDataset.xml">
+      <paramValue name="datasetName">${abbrev}_Eupath_ECAssociations_RSRC</paramValue>
+      <paramValue name="datasetLoaderXmlFileName">OrthoMCL.xml</paramValue>
+      <paramValue name="parentDataDir">$$dataDir$$</paramValue>
+      <depends name="${abbrev}_proteome"/>
+    </subgraph>
+  </datasetTemplate>
+
+  <datasetTemplate class="referenceProteomeUniprotEC">
+    <prop name="abbrev"/>
+
+    <subgraph name="${abbrev}_enzymes" xmlFile="loadDataset.xml">
+      <paramValue name="datasetName">${abbrev}_Uniprot_ECAssociations_RSRC</paramValue>
+      <paramValue name="datasetLoaderXmlFileName">OrthoMCL.xml</paramValue>
+      <paramValue name="parentDataDir">$$dataDir$$</paramValue>
+      <depends name="${abbrev}_proteome"/>
+    </subgraph>
+  </datasetTemplate>
+
+  <step name="makeGoodProteinsFile" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::OrthomclMakeGoodProteins">
+    <paramValue name="proteomesDir">$$proteomesDir$$</paramValue>
+    <paramValue name="outputGoodProteinsFile">$$outputGoodProteinsFile$$</paramValue>
+    <paramValue name="outputBadProteinsFile">$$dataDir$$/bad.fasta</paramValue>
+    <paramValue name="minLength">10</paramValue>
+    <paramValue name="maxStopPercent">20</paramValue>
+    <dependsPattern name="*_proteome"/>
+  </step>
+
+  <step name="mirrorProteinsToCluster" stepClass="ReFlow::StepClasses::MirrorToComputeCluster">
+    <paramValue name="fileOrDirToMirror">$$outputGoodProteinsFile$$</paramValue>
+    <depends name="makeGoodProteinsFile"/>
+  </step>
+
+  <!-- NEEDS WORK -->
+  <subgraph name="makeGroups" xmlFile="makeOrthologGroups.xml">
+    <paramValue name="parentDataDir">$$dataDir$$</paramValue>
+    <paramValue name="inputProteinFile">$$outputGoodProteinsFile$$</paramValue>
+    <paramValue name="inputTaxaDir">dontcare</paramValue>
+    <paramValue name="outputGroupsDir">$$outputGroupsDir$$</paramValue>
+    <paramValue name="suffix">Ref</paramValue>
+    <paramValue name="useExistingSimSeqs">false</paramValue>
+    <paramValue name="collapseClades">false</paramValue>
+    <paramValue name="includeSingletonGroups">true</paramValue>
+    <paramValue name="groupIdPrefix">$$groupIdPrefix$$</paramValue>
+    <paramValue name="groupIdStart">$$groupIdStart$$</paramValue>
+    <depends name="mirrorProteinsToCluster"/>
+  </subgraph>
+
+  <subgraph name="interproScan" xmlFile="interpro.xml">
+    <paramValue name="proteinsFile">$$outputGoodProteinsFile$$</paramValue>
+    <paramValue name="parentDataDir">$$dataDir$$</paramValue>
+    <paramValue name="insertVersion">2</paramValue>
+    <paramValue name="aaSeqTable">ExternalAASequence</paramValue>
+    <paramValue name="sourceIdRegex">^\w+\|(\S+)</paramValue>
+    <depends name="mirrorDataDirToCluster"/>    
+    <depends name="makeGoodProteinsFile"/>
+  </subgraph>
+
+</workflowGraph>

@@ -1,0 +1,34 @@
+<workflowGraph name="">
+  <param name="parentDataDir"/>
+
+  <constant name="dataDir">$$parentDataDir$$/ecMappings</constant>
+
+  <step name="makeDataDir" stepClass="ReFlow::StepClasses::MakeDataDir">
+    <paramValue name="dataDir">$$dataDir$$</paramValue>
+  </step>
+
+
+  <datasetTemplate class="eupathEcMappings">
+    <prop name="abbrev"/>
+
+    <subgraph name="${abbrev}_enzymes" xmlFile="loadDataset.xml">
+      <paramValue name="datasetName">${abbrev}_Eupath_ECAssociations_RSRC</paramValue>
+      <paramValue name="datasetLoaderXmlFileName">OrthoMCL.xml</paramValue>
+      <paramValue name="parentDataDir">$$dataDir$$</paramValue>
+      <depends name="makeDataDir"/>
+    </subgraph>
+  </datasetTemplate>
+
+  <datasetTemplate class="uniprotEcMappings">
+    <prop name="abbrev"/>
+
+    <subgraph name="${abbrev}_enzymes" xmlFile="loadDataset.xml">
+      <paramValue name="datasetName">${abbrev}_Uniprot_ECAssociations_RSRC</paramValue>
+      <paramValue name="datasetLoaderXmlFileName">OrthoMCL.xml</paramValue>
+      <paramValue name="parentDataDir">$$dataDir$$</paramValue>
+      <depends name="makeDataDir"/>
+    </subgraph>
+  </datasetTemplate>
+
+
+</workflowGraph>

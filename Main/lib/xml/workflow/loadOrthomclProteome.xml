@@ -1,0 +1,34 @@
+<workflowGraph name="">
+    <param name="abbrev"/>
+    <param name="oldAbbrevsList"/>
+    <param name="oldReleasesSequenceFilesDir"/>
+    <param name="parentDataDir"/>
+    <param name="proteomesDir"/>
+
+    <subgraph name="loadProteome" xmlFile="loadDataset.xml">
+      <paramValue name="datasetName">$$abbrev$$_orthomclProteome_RSRC</paramValue>
+      <paramValue name="datasetLoaderXmlFileName">OrthoMCL.xml</paramValue>
+      <paramValue name="parentDataDir">$$parentDataDir$$</paramValue>
+    </subgraph>
+
+    <step name="copyProteomeFile" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::CopyDataDirFile">
+      <paramValue name="fromFile">$$parentDataDir$$/$$abbrev$$_orthomclProteome_RSRC/$$abbrev$$Proteome.fasta</paramValue>
+      <paramValue name="toFile">$$proteomesDir$$/$$abbrev$$.fasta</paramValue>
+<!--      <paramValue name="useSymLink">true</paramValue> -->
+      <depends name="loadProteome"/>
+    </step>
+
+    <step name="mapPreviousSeqIDs" stepClass="OrthoMCLWorkflow::Main::WorkflowSteps::MapAndInsertPrevSeqIDs">
+      <paramValue name="abbrev">$$abbrev$$</paramValue>
+      <paramValue name="oldAbbrevsList">$$oldAbbrevsList$$</paramValue>
+      <paramValue name="inputDir">$$oldReleasesSequenceFilesDir$$</paramValue>
+      <depends name="loadProteome"/>
+    </step>
+
+    <step name="mapPreviousGroupIDs" stepClass="OrthoMCLWorkflow::Main::WorkflowSteps::MapAndInsertPrevGroupIDs">
+      <paramValue name="abbrev">$$abbrev$$</paramValue>
+      <paramValue name="oldAbbrevsList">$$oldAbbrevsList$$</paramValue>
+      <paramValue name="inputDir">$$oldReleasesGroupFilesDir$$</paramValue>
+      <depends name="mapPreviousSeqIDs"/>
+    </step>
+</workflowGraph>

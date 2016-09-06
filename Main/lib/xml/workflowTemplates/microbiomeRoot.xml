@@ -72,8 +72,8 @@
     </subgraph>
   </datasetTemplate>
 
-  <subgraph name="ISA" xmlFile="loadDataset.xml">
-    <paramValue name="datasetName">ISA_RSRC</paramValue>
+  <subgraph name="ISASimple" xmlFile="loadDataset.xml">
+    <paramValue name="datasetName">ISASimple_RSRC</paramValue>
     <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
     <paramValue name="parentDataDir"></paramValue>
       <dependsPattern name="*Experiment"/>

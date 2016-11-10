@@ -68,7 +68,7 @@
       <paramValue name="relativeDownloadSiteDir">$$relativeDownloadSiteDir$$</paramValue>
       <paramValue name="studyName">OTU Profiles ${name}</paramValue>
       <paramValue name="technologyType">OTU</paramValue>
-      <dependsPattern name="otuProfiles*"/>
+      <dependsPattern name="otuProfiles_${name}"/>
     </subgraph>
   </datasetTemplate>
 

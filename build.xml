@@ -1,4 +1,4 @@
-<project name="MicrobiomeWorkflow" default="MicrobiomeWorkflow-Installation" basedir=".">
+<project name="MicrobiomeWorkflow" default="Installation" basedir=".">
 
   <import file="${projectsDir}/ApiCommonWorkflow/build.xml" optional="true" />
   <import file="${projectsDir}/MicrobiomeData/build.xml" optional="true" />

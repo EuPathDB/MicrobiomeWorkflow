@@ -45,6 +45,20 @@
     </subgraph>
   </datasetTemplate>
 
+  <datasetTemplate class="taxonMapping">
+    <prop name="projectName"/>
+    <prop name="name"/>
+    <prop name="version"/>
+    
+    <subgraph name="taxonMapping_${name}" xmlFile="loadDataset.xml">
+      <paramValue name="datasetName">taxonMapping_${name}_RSRC</paramValue>
+      <paramValue name="datasetLoaderXmlFileName">${projectName}.xml</paramValue>
+      <paramValue name="parentDataDir"></paramValue>
+      <dependsPattern name="NASeqFromFasta*"/>
+      <dependsGlobal name="taxonomy"/>
+    </subgraph>
+  </datasetTemplate>
+
   <datasetTemplate class="otuProfiles">
     <prop name="projectName"/>
     <prop name="name"/>

@@ -14,8 +14,6 @@
     <paramValue name="projectName">$$projectName$$</paramValue>
   </step>
 
-
-
   <subgraph name="taxonomy" xmlFile="loadDataset.xml">
     <paramValue name="datasetName">taxonomy_RSRC</paramValue>
     <paramValue name="datasetLoaderXmlFileName">$$globalDatasetLoaderXmlFile$$</paramValue>
@@ -29,13 +27,6 @@
     <paramValue name="datasetLoaderXmlFileName">$$globalDatasetLoaderXmlFile$$</paramValue>
     <paramValue name="parentDataDir">$$dataDir$$</paramValue>
     <depends name="makeDataDir"/>
-    <depends name="initUserGroupProject"/>
-  </subgraph>
-
-  <subgraph name="GO_RSRC" xmlFile="loadDataset.xml">
-    <paramValue name="datasetName">GO_RSRC</paramValue>
-    <paramValue name="datasetLoaderXmlFileName">$$globalDatasetLoaderXmlFile$$</paramValue>
-    <paramValue name="parentDataDir">$$dataDir$$</paramValue>
     <depends name="initUserGroupProject"/>
   </subgraph>
 
@@ -58,7 +49,6 @@
     <depends name="Ontology_Relationship_Types_RSRC"/>
   </subgraph>
 
-
   <subgraph name="EuPath_Ontology_RSRC" xmlFile="loadDataset.xml" stepLoadTypes="runPlugin:insertOntologyTermsAndRelationships">
     <paramValue name="datasetName">OntologyTerm_EuPath_RSRC</paramValue>
     <paramValue name="datasetLoaderXmlFileName">$$globalDatasetLoaderXmlFile$$</paramValue>
@@ -72,6 +62,7 @@
     <depends name="eupathCuratedOntologies"/>
     <depends name="oboOntologies"/>
   </subgraph>
+
   <subgraph name="UPDATE_EuPath_Ontology_RSRC" xmlFile="loadDataset.xml" stepLoadTypes="runPlugin:insertOntologyTermsAndRelationships">
     <paramValue name="datasetName">OntologyTerm_INTERNAL_EuPath_RSRC</paramValue>
     <paramValue name="datasetLoaderXmlFileName">$$globalDatasetLoaderXmlFile$$</paramValue>
@@ -79,29 +70,6 @@
     <depends name="EuPath_Ontology_RSRC"/>
   </subgraph>
 
-    <subgraph name="geographicLocationGPS_RSRC" xmlFile="loadDataset.xml">
-      <paramValue name="datasetName">geographicLocationGPS_RSRC</paramValue>
-      <paramValue name="datasetLoaderXmlFileName">$$globalDatasetLoaderXmlFile$$</paramValue>
-      <paramValue name="parentDataDir">$$dataDir$$</paramValue>
-    <depends name="oboOntologies"/>
-    </subgraph>
-
-
-  <subgraph name="GO_evidence_codes_RSRC" xmlFile="loadDataset.xml">
-    <paramValue name="datasetName">GO_evidence_codes_RSRC</paramValue>
-    <paramValue name="datasetLoaderXmlFileName">$$globalDatasetLoaderXmlFile$$</paramValue>
-    <paramValue name="parentDataDir">$$dataDir$$</paramValue>
-    <depends name="initUserGroupProject"/>
-  </subgraph>
-
-  <subgraph name="OBO_Ontology_efo" xmlFile="loadDataset.xml" stepLoadTypes="runPlugin:insertOntologyTermsAndRelationships">
-    <paramValue name="datasetName">OBO_Ontology_efo_RSRC</paramValue>
-    <paramValue name="datasetLoaderXmlFileName">$$globalDatasetLoaderXmlFile$$</paramValue>
-    <paramValue name="parentDataDir">$$dataDir$$</paramValue>
-    <depends name="Ontology_Relationship_Types_RSRC"/>
-  </subgraph>
-
-  
 </workflowGraph>
 
  

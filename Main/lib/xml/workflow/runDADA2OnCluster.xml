@@ -1,0 +1,63 @@
+<workflowGraph name="runDADA2OnCluster">
+  <param name="projectName"/>
+  <param name="parentDataDir"/>
+  <param name="extDBName"/>
+  <param name="multiplexed"/>
+  <param name="barcodesType"/>
+  <param name="samplesInfoFile"/>
+  <param name="isPaired"/>
+  <param name="trimLeft"/>
+  <param name="trimLeftR"/>
+  <param name="truncLen"/>
+  <param name="truncLenR"/>
+  <param name="readLen"/>
+
+  <constant name="fastqDir">$$parentDataDir$$/$$extDBName$$/final</constant>
+
+  <step name="makeClusterDir" stepClass="ReFlow::StepClasses::MakeDataDir">
+    <paramValue name="dataDir">$$extDBName$$/cluster</paramValue>
+  </step>
+
+  <constant name="dataDir">$$parentDataDir$$/$$extDBName$$/cluster</constant>
+  <constant name="taxonRefFile">$$parentDataDir$$/DADA2Taxonomy_RSRC/DADA2Taxonomy_trainSet.fa.gz</constant>
+  <constant name="samplesInfoFile">TODO</constant>
+
+  <step name="makeDADA2InputDir" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::MakeDADA2TaskInputDir">
+    <paramValue name="taskInputDir">$$dataDir$$/input</paramValue>
+    <paramValue name="fastqDir">$$fastqDir$$</paramValue>
+    <paramValue name="multiplexed">$$multiplexed$$</paramValue>
+    <paramValue name="keepNode">yes</paramValue>
+    <paramValue name="barcodesType">$$barcodesType$$</paramValue>
+    <paramValue name="samplesInfoFile">$$samplesInfoFile$$</paramValue>
+    <paramValue name="isPaired">$$isPaired$$</paramValue>
+    <paramValue name="trimLeft">$$trimLeft$$</paramValue>
+    <paramValue name="trimLeftR">$$trimLeftR$$</paramValue>
+    <paramValue name="truncLen">$$truncLen$$</paramValue>
+    <paramValue name="truncLenR">$$truncLenR$$</paramValue>
+    <paramValue name="readLen">$$readLen$$</paramValue>
+    <paramValue name="taxonRefFile">$$taxonRefFile$$</paramValue>
+    <depends name="makeClusterDir"/>
+  </step>
+
+  <step name="mirrorToCluster" stepClass="ReFlow::StepClasses::MirrorToComputeCluster" stepLoadTypes="toCluster">
+    <paramValue name="fileOrDirToMirror">$$dataDir$$/input</paramValue>
+    <depends name="makeDADA2InputDir"/>
+  </step>
+
+  <step name="runClusterTask" stepClass="ReFlow::StepClasses::RunAndMonitorDistribJob" stepLoadTypes="dada2Cluster" stepFailTypes="dada2Cluster">
+    <paramValue name="taskInputDir">$$dataDir$$/input</paramValue>
+    <paramValue name="numNodes">20</paramValue>
+    <paramValue name="maxMemoryGigs">15</paramValue>
+    <paramValue name="processorsPerNode">1</paramValue>
+    <depends name="mirrorToCluster"/>
+  </step>
+
+  <step name="mirrorFromCluster" stepClass="ReFlow::StepClasses::MirrorFromComputeCluster" stepLoadTypes="fromCluster">
+    <paramValue name="fileOrDirToMirror">$$dataDir$$/master</paramValue>
+    <paramValue name="outputDir">$$dataDir$$/master/mainresult</paramValue>
+    <paramValue name="outputFiles">TODO</paramValue>
+    <paramValue name="deleteAfterCopy">true</paramValue>
+    <depends name="runClusterTask"/>
+  </step>
+
+</workflowGraph>

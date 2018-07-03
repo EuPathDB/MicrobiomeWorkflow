@@ -1,9 +1,9 @@
 package MicrobiomeWorkflow::Main::WorkflowSteps::MakeDADA2TaskInputDir;
 
-@ISA = (MicrobiomeWorkflow::Main::WorkflowSteps::WorkflowStep);
+@ISA = (ApiCommonWorkflow::Main::WorkflowSteps::WorkflowStep);
 
 use strict;
-use MicrobiomeWorkflow::Main::WorkflowSteps::WorkflowStep;
+use ApiCommonWorkflow::Main::WorkflowSteps::WorkflowStep;
 
 sub run {
   my ($self, $test, $undo) = @_;
@@ -44,32 +44,45 @@ sub run {
 #TODO probably need to build up paths here, but placeholders for now
       my $taskPropFileContent="
 
-dataDir=$$clusterWorkflowDataDir/$fastqDir
-multiplexed=$multiplexed
-samplesInfoFile=$clusterWorkflowDataDir/$samplesInfoFile
-isPaired=$isPaired
+dataDir=$clusterWorkflowDataDir/$fastqDir
 taxonRefFile=$clusterWorkflowDataDir/$taxonRefFile
 ";
 
-#TODO series of if statements to add other params in as necessary
-           
-      if (#barcodesType) {
-        $taskPropFileContent .= "barcodesType=$barcodesType";
+      my $testSamplesInfoFile = "$workflowDataDir/$samplesInfoFile";
+      if ( -f $testSamplesInfoFile) {
+        $taskPropFileContent .= "samplesInfoFile=$clusterWorkflowDataDir/$samplesInfoFile\n";
+      } else {
+        warn "No samplesInfoFile found..";
       }
-      if (#trimLeft) {
-        $taskPropFileContent .= "trimLeft=$trimLeft";
+
+      if ($multiplexed) {
+        $taskPropFileContent .= "multiplexed=true\n";
+      } else {
+        $taskPropFileContent .= "multiplexed=false\n";
+      }          
+      if ($isPaired) {
+        $taskPropFileContent .= "isPaired=true\n";        
+      } else {          
+        $taskPropFileContent .= "isPaired=false\n";
+      } 
+
+      if ($barcodesType) {
+        $taskPropFileContent .= "barcodesType=$barcodesType\n";
       }
-      if (#trimLeftR) {
-        $taskPropFileContent .= "trimLeftR=$trimLeftR";
+      if ($trimLeft) {
+        $taskPropFileContent .= "trimLeft=$trimLeft\n";
       }
-      if (#truncLen) {
-        $taskPropFileContent .= "truncLen=$truncLen";
+      if ($trimLeftR) {
+        $taskPropFileContent .= "trimLeftR=$trimLeftR\n";
       }
-      if (#truncLenR) {
-        $taskPropFileContent .= "truncLenR=$truncLenR";
+      if ($truncLen) {
+        $taskPropFileContent .= "truncLen=$truncLen\n";
       }
-      if (#readLen) {
-        $taskPropFileContent .= "readLen=$readLen";
+      if ($truncLenR) {
+        $taskPropFileContent .= "truncLenR=$truncLenR\n";
+      }
+      if ($readLen) {
+        $taskPropFileContent .= "readLen=$readLen\n";
       }
 
       print F "$taskPropFileContent\n";

@@ -59,13 +59,11 @@
     </subgraph>
   </datasetTemplate>
 
-
   <datasetTemplate class="otuProfiles">
     <prop name="projectName"/>
     <prop name="name"/>
     <prop name="version"/>
 
-    
     <subgraph name="otuProfiles_${name}" xmlFile="loadDataset.xml">
       <paramValue name="datasetName">otu_${name}_RSRC</paramValue>
       <paramValue name="datasetLoaderXmlFileName">${projectName}.xml</paramValue>
@@ -83,14 +81,16 @@
       <paramValue name="relativeDownloadSiteDir">$$relativeDownloadSiteDir$$</paramValue>
       <paramValue name="studyName">OTU Profiles ${name}</paramValue>
       <paramValue name="technologyType">OTU</paramValue>
-      <dependsPattern name="otuProfiles_${name}"/>  <!-- should be depends name instead of dependsPattern name -->
+      <depends name="otuProfiles_${name}"/> 
     </subgraph>
   </datasetTemplate>
 
+   <subgraph name="DADA2TaxonMapping" xmlFile="loadDataset.xml">
+     <paramValue name="datasetName">DADA2TaxonMapping_RSRC</paramValue>
+     <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
+     <paramValue name="parentDataDir"></paramValue>
+   </subgraph>
 
-<!-- TODO add dataset class in classes xml for DADA2Taxonomy
-     load nothing plugin with manual get for not yet determined filename
-     make dataset in microbiome datasets  -->
   <subgraph name="DADA2Taxonomy" xmlFile="loadDataset.xml">
     <paramValue name="datasetName">DADA2Taxonomy_RSRC</paramValue>
     <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
@@ -98,11 +98,11 @@
   </subgraph>
 
   <step name="mirrorDADA2TaxonomyToCluster" stepClass="ReFlow::StepClasses::MirrorToComputeCluster" stepLoadTypes="toCluster">
-      <paramValue name="fileOrDirToMirror">DADA2Taxonomy_RSRC</paramValue>
-      <depends name="DADA2Taxonomy"/>
+    <paramValue name="fileOrDirToMirror">DADA2Taxonomy_RSRC</paramValue>
+    <depends name="DADA2Taxonomy"/>
+    <dependsGlobal name="initClusterHomeDir"/>
   </step>
 
-<!--
   <datasetTemplate class="otuProfilesDADA2">
     <prop name="projectName"/>
     <prop name="name"/>
@@ -121,33 +121,33 @@
       <paramValue name="datasetName">otuDADA2_${name}_RSRC</paramValue>
       <paramValue name="datasetLoaderXmlFileName">${projectName}.xml</paramValue>
       <paramValue name="parentDataDir"></paramValue>
-      <dependsGlobal name="oboOntologies"/>
       <depends name="mirrorDADA2TaxonomyToCluster"/>
+      <dependsGlobal name="oboOntologies"/>
       <dependsGlobal name="taxonomy"/>
     </subgraph>
 
     <subgraph name="runDADA2OnCluster_${name}" xmlFile="runDADA2OnCluster.xml">
-       <paramValue name="projectName">$$projectName$$</paramValue>
-       <paramValue name="parentDataDir">$$dataDir$$</paramValue>
-       <paramValue name="extDBName">otuDADA2_${name}_RSRC</paramValue>
-       <paramValue name="multiplexed">$$multiplexed$$</paramValue>
-       <paramValue name="barcodesType">$$barcodesType$$</paramValue>
-       <paramValue name="samplesInfoFile">$$samplesInfoFile$$</paramValue>
-       <paramValue name="isPaired">$$isPaired$$</paramValue>
-       <paramValue name="trimLeft">$$trimLeft$$</paramValue>
-       <paramValue name="trimLeftR">$$trimLeftR$$</paramValue>
-       <paramValue name="truncLen">$$truncLen$$</paramValue>
-       <paramValue name="truncLenR">$$truncLenR$$</paramValue>
-       <paramValue name="readLen">$$readLen$$</paramValue>
+      <paramValue name="projectName">${projectName}</paramValue>
+      <paramValue name="parentDataDir"></paramValue>
+      <paramValue name="extDBName">otuDADA2_${name}_RSRC</paramValue>
+      <paramValue name="multiplexed">${multiplexed}</paramValue>
+      <paramValue name="barcodesType">${barcodesType}</paramValue>
+      <paramValue name="samplesInfoFile">${samplesInfoFile}</paramValue>
+      <paramValue name="isPaired">${isPaired}</paramValue>
+      <paramValue name="trimLeft">${trimLeft}</paramValue>
+      <paramValue name="trimLeftR">${trimLeftR}</paramValue>
+      <paramValue name="truncLen">${truncLen}</paramValue>
+      <paramValue name="truncLenR">${truncLenR}</paramValue>
+      <paramValue name="readLen">${readLen}</paramValue>
       <depends name="otuProfilesDADA2_${name}"/>
-    </subgraph> 
+    </subgraph>
 
-    <step name="loadTaxonMapping_${name}" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::TODO">
-     TODO param here for path to dada taxonomy output
-    TODO pass the external dbname
-    
+    <step name="loadTaxonMapping_${name}" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::TaxonStringToNCBI">
+      <paramValue name="extDBName">otuDADA2_${name}_RSRC</paramValue>
+      <depends name="runDADA2OnCluster_${name}"/>
     </step>
 
+    <!-- #TODO double check this part i cant remember what it does-->
     <subgraph name="${name}_analyzeOtuExperiment" xmlFile="analyzeGenericProfileExperiment.xml">
       <paramValue name="parentDataDir"></paramValue>
       <paramValue name="experimentDatasetName">otuDADA2_${name}_RSRC</paramValue>
@@ -156,13 +156,11 @@
       <paramValue name="organismAbbrev">DONT CARE</paramValue>
       <paramValue name="relativeDownloadSiteDir">$$relativeDownloadSiteDir$$</paramValue>
       <paramValue name="studyName">OTU Profiles ${name}</paramValue>
-       TODO check following line
       <paramValue name="technologyType">OTU</paramValue>
       <depends name="loadTaxonMapping_${name}"/>  
     </subgraph>
 
  </datasetTemplate>
--->
 
  <subgraph name="ISASimpleMicrobiome" xmlFile="loadDataset.xml">
     <paramValue name="datasetName">ISASimple_RSRC</paramValue>
@@ -174,4 +172,3 @@
   </subgraph>
 
 </workflowGraph>
-

@@ -37,6 +37,11 @@
     <depends name="initUserGroupProject"/>
   </subgraph>
 
+  <step name="initClusterHomeDir"
+        stepClass="ReFlow::StepClasses::InitClusterHomeDir">
+    <depends name="initUserGroupProject"/>
+  </step>
+
   <subgraph name="oboOntologies" xmlFile="generated/microbiomeGlobal/oboOntologies.xml">
     <paramValue name="datasetLoaderXmlFileName">$$globalDatasetLoaderXmlFile$$</paramValue>
     <paramValue name="parentDataDir">$$dataDir$$</paramValue>

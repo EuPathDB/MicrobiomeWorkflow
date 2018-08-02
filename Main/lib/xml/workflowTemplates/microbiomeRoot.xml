@@ -147,7 +147,6 @@
       <depends name="runDADA2OnCluster_${name}"/>
     </step>
 
-    <!-- #TODO double check this part i cant remember what it does-->
     <subgraph name="${name}_analyzeOtuExperiment" xmlFile="analyzeGenericProfileExperiment.xml">
       <paramValue name="parentDataDir"></paramValue>
       <paramValue name="experimentDatasetName">otuDADA2_${name}_RSRC</paramValue>

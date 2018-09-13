@@ -59,6 +59,13 @@
     </subgraph>
   </datasetTemplate>
 
+  <!-- should probably be renamed 'OverrideTaxonMapping' or something -->
+   <subgraph name="OverrideTaxonMapping" xmlFile="loadDataset.xml">
+     <paramValue name="datasetName">OverrideTaxonMapping_RSRC</paramValue>
+     <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
+     <paramValue name="parentDataDir"></paramValue>
+   </subgraph>
+
   <datasetTemplate class="otuProfiles">
     <prop name="projectName"/>
     <prop name="name"/>
@@ -71,6 +78,13 @@
       <dependsPattern name="NASeqFromFasta*"/>
       <dependsGlobal name="oboOntologies"/>
     </subgraph>
+
+    <!-- i think these need to also depend on taxonMapping since that loads into apidb.sequencetaxonstring -->    
+    <step name="loadTaxonMapping_${name}" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::TaxonStringToNCBI">
+      <paramValue name="extDBName">otu_${name}_RSRC</paramValue>
+      <depends name="otuProfiles_${name}"/>
+      <depends name="OverrideTaxonMapping"/>
+    </step>
   
     <subgraph name="${name}_analyzeOtuExperiment" xmlFile="analyzeGenericProfileExperiment.xml">
       <paramValue name="parentDataDir"></paramValue>
@@ -84,12 +98,6 @@
       <depends name="otuProfiles_${name}"/> 
     </subgraph>
   </datasetTemplate>
-
-   <subgraph name="DADA2TaxonMapping" xmlFile="loadDataset.xml">
-     <paramValue name="datasetName">DADA2TaxonMapping_RSRC</paramValue>
-     <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
-     <paramValue name="parentDataDir"></paramValue>
-   </subgraph>
 
   <subgraph name="DADA2Taxonomy" xmlFile="loadDataset.xml">
     <paramValue name="datasetName">DADA2Taxonomy_RSRC</paramValue>
@@ -145,6 +153,7 @@
     <step name="loadTaxonMapping_${name}" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::TaxonStringToNCBI">
       <paramValue name="extDBName">otuDADA2_${name}_RSRC</paramValue>
       <depends name="runDADA2OnCluster_${name}"/>
+      <depends name="OverrideTaxonMapping"/> 
     </step>
 
     <subgraph name="${name}_analyzeOtuExperiment" xmlFile="analyzeGenericProfileExperiment.xml">

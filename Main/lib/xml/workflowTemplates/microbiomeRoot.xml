@@ -124,7 +124,10 @@
     <prop name="truncLen"/>
     <prop name="truncLenR"/>
     <prop name="readLen"/>
- 
+    <prop name="platform"/>
+    <prop name="sraStudyId"/>
+    <prop name="mergeTechReps"/>
+  
     <subgraph name="otuProfilesDADA2_${name}" xmlFile="loadDataset.xml">
       <paramValue name="datasetName">otuDADA2_${name}_RSRC</paramValue>
       <paramValue name="datasetLoaderXmlFileName">${projectName}.xml</paramValue>
@@ -147,6 +150,9 @@
       <paramValue name="truncLen">${truncLen}</paramValue>
       <paramValue name="truncLenR">${truncLenR}</paramValue>
       <paramValue name="readLen">${readLen}</paramValue>
+      <paramValue name="platform">${platform}</paramValue>
+      <paramValue name="sraStudyId">${sraStudyId}</paramValue>
+      <paramValue name="mergeTechReps">${mergeTechReps}</paramValue>
       <depends name="otuProfilesDADA2_${name}"/>
     </subgraph>
 

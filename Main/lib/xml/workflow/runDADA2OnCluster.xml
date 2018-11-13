@@ -11,6 +11,9 @@
   <param name="truncLen"/>
   <param name="truncLenR"/>
   <param name="readLen"/>
+  <param name="platform"/>
+  <param name="sraStudyId"/>
+  <param name="mergeTechReps"/>
 
   <constant name="fastqDir">$$parentDataDir$$/$$extDBName$$/final</constant>
   <constant name="dataDir">$$parentDataDir$$/$$extDBName$$/cluster</constant>
@@ -45,6 +48,9 @@
     <paramValue name="truncLenR">$$truncLenR$$</paramValue>
     <paramValue name="readLen">$$readLen$$</paramValue>
     <paramValue name="taxonRefFile">$$taxonRefFile$$</paramValue>
+    <paramValue name="platform">$$platform$$</paramValue>
+    <paramValue name="sraStudyId">$$sraStudyId$$</paramValue>
+    <paramValue name="mergeTechReps">$$mergeTechReps$$</paramValue>
     <depends name="makeClusterDir"/>
   </step>
 

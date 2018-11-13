@@ -15,13 +15,16 @@ sub run {
   my $keepNode = $self->getParamValue("keepNode");
   my $barcodesType = $self->getParamValue("barcodesType");
   my $samplesInfoFile = $self->getParamValue("samplesInfoFile");
-  my $isPaired = $self->getBooleanParamValue("isPaired");
+  my $isPaired = $self->getParamValue("isPaired");
   my $trimLeft = $self->getParamValue("trimLeft");
   my $trimLeftR = $self->getParamValue("trimLeftR");
   my $truncLen = $self->getParamValue("truncLen");
   my $truncLenR = $self->getParamValue("truncLenR");
   my $readLen = $self->getParamValue("readLen");
   my $taxonRefFile = $self->getParamValue('taxonRefFile');
+  my $platform = $self->getParamValue('platform');
+  my $sraStudyId = $self->getParamValue('sraStudyId');
+  my $mergeTechReps = $self->getBooleanParamValue('mergeTechReps');
   my $taskSize = 1;
 
   my $clusterWorkflowDataDir = $self->getClusterWorkflowDataDir();
@@ -59,13 +62,15 @@ taxonRefFile=$clusterWorkflowDataDir/$taxonRefFile
         $taskPropFileContent .= "multiplexed=true\n";
       } else {
         $taskPropFileContent .= "multiplexed=false\n";
-      }          
-      if ($isPaired) {
-        $taskPropFileContent .= "isPaired=true\n";        
-      } else {          
-        $taskPropFileContent .= "isPaired=false\n";
+      }
+      if ($mergeTechReps) {
+        $taskPropFileContent .= "mergeTechReps=true\n";
+      } else {
+        $taskPropFileContent .= "mergeTechReps=false\n";
       } 
-
+      if ($isPaired) {
+        $taskPropFileContent .= "isPaired=$isPaired\n";        
+      }
       if ($barcodesType) {
         $taskPropFileContent .= "barcodesType=$barcodesType\n";
       }
@@ -83,6 +88,12 @@ taxonRefFile=$clusterWorkflowDataDir/$taxonRefFile
       }
       if ($readLen) {
         $taskPropFileContent .= "readLen=$readLen\n";
+      }
+      if ($platform) {
+        $taskPropFileContent .= "platform=$platform\n";
+      }
+      if ($sraStudyId) {
+        $taskPropFileContent .= "sraStudyId=$sraStudyId\n";
       }
 
       print F "$taskPropFileContent\n";

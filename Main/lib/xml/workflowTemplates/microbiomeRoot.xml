@@ -176,13 +176,47 @@
 
  </datasetTemplate>
 
+  <subgraph name="OBO_Ontology_fma_RSRC" stepLoadTypes="runPlugin:insertOntologyTermsAndRelationships" xmlFile="loadDataset.xml">
+   <paramValue name="datasetName">OBO_Ontology_fma_RSRC</paramValue>
+   <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
+   <paramValue name="parentDataDir">global/oboOntologies</paramValue>
+   <dependsGlobal name="oboOntologies"/>
+ </subgraph>
+
+
  <subgraph name="ISASimpleMicrobiome" xmlFile="loadDataset.xml">
     <paramValue name="datasetName">ISASimple_RSRC</paramValue>
     <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
     <paramValue name="parentDataDir"></paramValue>
+    <depends name="OBO_Ontology_fma_RSRC"/>
     <dependsPattern name="*Experiment"/>
-    <dependsGlobal name="oboOntologies"/>
     <dependsGlobal name="eupathCuratedOntologies"/>
   </subgraph>
+<!--
+  <step name="tuningManager"
+          stepClass="ApiCommonWorkflow::Main::WorkflowSteps::MakeMbioDerivedTables" stepLoadTypes="tuningManager">
+    <paramValue name="tables">Samples,PANExtDbRls,Ontology,Metadata,TaxonRelativeAbundance</paramValue>
+      <depends name="ISASimpleMicrobiome"/>
+  </step>
 
+  <step name="shinyTables"
+        stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::MakeShinyDatasetFiles">
+    <paramValue name="outputFileBaseName">shiny</paramValue>
+    <depends name="tuningManager"/>
+  </step>
+
+  <step name="copyDownloadAndWebserviceFiles" 
+          stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::CopyShinyFiles">
+    <paramValue name="inputFileBaseName">shiny</paramValue>
+    <paramValue name="relativeWebServicesDir">$$relativeWebServicesDir$$</paramValue>
+    <paramValue name="relativeDownloadSiteDir">$$relativeDownloadSiteDir$$</paramValue>
+    <depends name="shinyTables"/>
+    <depends name="makeProjectReleaseWebServicesDir"/>
+    <depends name="makeProjectReleaseDownloadDir"/>
+  </step>
+
+  <step name="mrsyncDownloadAndWebserviceFiles" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::MirrorRsync">
+    <depends name="copyDownloadAndWebserviceFiles"/>
+  </step>   
+-->
 </workflowGraph>

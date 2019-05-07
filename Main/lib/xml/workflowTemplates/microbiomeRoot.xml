@@ -192,31 +192,30 @@
     <dependsPattern name="*Experiment"/>
     <dependsGlobal name="eupathCuratedOntologies"/>
   </subgraph>
-<!--
+
   <step name="tuningManager"
-          stepClass="ApiCommonWorkflow::Main::WorkflowSteps::MakeMbioDerivedTables" stepLoadTypes="tuningManager">
+          stepClass="ApiCommonWorkflow::Main::WorkflowSteps::MakeDerivedTables" stepLoadTypes="tuningManager">
     <paramValue name="tables">Samples,PANExtDbRls,Ontology,Metadata,TaxonRelativeAbundance</paramValue>
+    <paramValue name="organismAbbrev"></paramValue>
       <depends name="ISASimpleMicrobiome"/>
   </step>
 
-  <step name="shinyTables"
-        stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::MakeShinyDatasetFiles">
-    <paramValue name="outputFileBaseName">shiny</paramValue>
+  <step name="makeDownloadFileDir" stepClass="ReFlow::StepClasses::MakeDataDir">
+    <paramValue name="dataDir">downloadSiteFiles</paramValue>
+  </step>
+
+  <step name="makeDownloadFiles"
+        stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::MakeDownloadFiles">
+    <paramValue name="outputFileBaseName">downloadSite</paramValue>
     <depends name="tuningManager"/>
   </step>
 
-  <step name="copyDownloadAndWebserviceFiles" 
-          stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::CopyShinyFiles">
-    <paramValue name="inputFileBaseName">shiny</paramValue>
-    <paramValue name="relativeWebServicesDir">$$relativeWebServicesDir$$</paramValue>
+  <step name="copyDownloadFiles" 
+          stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::CopyDownloadFiles">
+    <paramValue name="inputFileBaseName">downloadSite</paramValue>
     <paramValue name="relativeDownloadSiteDir">$$relativeDownloadSiteDir$$</paramValue>
-    <depends name="shinyTables"/>
-    <depends name="makeProjectReleaseWebServicesDir"/>
+    <depends name="makeDownloadFiles"/>
     <depends name="makeProjectReleaseDownloadDir"/>
   </step>
 
-  <step name="mrsyncDownloadAndWebserviceFiles" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::MirrorRsync">
-    <depends name="copyDownloadAndWebserviceFiles"/>
-  </step>   
--->
 </workflowGraph>

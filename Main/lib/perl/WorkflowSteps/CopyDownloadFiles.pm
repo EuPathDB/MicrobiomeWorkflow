@@ -22,16 +22,23 @@ sub run {
   closedir $dir;
 
   if ($undo) {
-    $self->runCmd(0, "rm -f $websiteFilesDir/$downloadDir/*");
+    $self->runCmd(0, "rm -fr $websiteFilesDir/$downloadDir/*");
   } else {
+
+    $self->runCmd($test, "printf \"IndexIgnore *\" > $websiteFilesDir/$downloadDir/.htaccess");
+
     for my $datasetName (@files) {
       next if ($datasetName eq '.' || $datasetName eq '..');
       $datasetName =~ s/($inputFileBaseName)_//g;
       my $outFile = $datasetName;
       $datasetName =~ s/\.txt//;
-      my $copyToDownloadDir = "$websiteFilesDir/$downloadDir/$datasetName";
+      next if ($datasetName eq 'ontologyMetadata');
+      my $digest = sha1_hex($datasetName);
+      my $copyToDownloadDir = "$websiteFilesDir/$downloadDir/$digest";
 
       $self->runCmd($test, "mkdir -p $copyToDownloadDir");
+      $self->runCmd($test, "printf \"IndexIgnoreReset ON\nIndexIgnore ..\" > $copyToDownloadDir/.htaccess");
+      $self->runCmd($test, "cp $workflowDataDir/${inputFileBaseName}_ontologyMetadata.txt $copyToDownloadDir/ontologyMetadata.txt");
       $self->runCmd($test, "cp $workflowDataDir/${inputFileBaseName}_$outFile $copyToDownloadDir/$outFile");
     }
   }

@@ -218,4 +218,10 @@
     <depends name="makeProjectReleaseDownloadDir"/>
   </step>
 
+  <subgraph name="crossStudyCard" xmlFile="loadDataset.xml">
+    <paramValue name="datasetName">CrossStudy_RSRC</paramValue>
+    <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
+    <paramValue name="parentDataDir"></paramValue>
+  </subgraph>
+
 </workflowGraph>

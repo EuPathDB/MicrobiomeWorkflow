@@ -224,4 +224,26 @@
     <paramValue name="parentDataDir"></paramValue>
   </subgraph>
 
+  <!-- will eventually turn into my sunbeam test -->
+  <datasetTemplate class="snakemakeTest">
+    <prop name="projectName"/>
+    <prop name="name"/>
+    <prop name="version"/>
+
+    <subgraph name="snakemake_${name}" xmlFile="loadDataset.xml">
+      <paramValue name="datasetName">snakemake_${name}_RSRC</paramValue>
+      <paramValue name="datasetLoaderXmlFileName">${projectName}.xml</paramValue>
+      <paramValue name="parentDataDir"></paramValue>
+    </subgraph>
+
+    <subgraph name="runSnakemakeOnCluster_${name}" xmlFile="runSnakemakeOnCluster.xml">
+      <paramValue name="projectName">${projectName}</paramValue>
+      <paramValue name="parentDataDir"></paramValue>
+      <paramValue name="extDBName">snakemake_${name}_RSRC</paramValue>
+      <paramValue name="snakefile">test</paramValue>
+      <paramValue name="config"></paramValue>
+      <depends name="snakemake_${name}"/>
+    </subgraph>
+  </datasetTemplate> 
+
 </workflowGraph>

@@ -28,12 +28,7 @@
     <paramValue name="fileOrDirToMirror">$$extDBName$$</paramValue>
     <depends name="makeClusterDir"/>
   </step>
-<!--
-  <step name="mirrorClusterdirToCluster" stepClass="ReFlow::StepClasses::MirrorToComputeCluster" stepLoadTypes="toCluster">
-    <paramValue name="fileOrDirToMirror">$$extDBName$$/cluster</paramValue>
-    <depends name="mirrorDatadirToCluster"/>
-  </step>
--->
+  
   <step name="makeDADA2InputDir" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::MakeDADA2TaskInputDir">
     <paramValue name="taskInputDir">$$dataDir$$/input</paramValue>
     <paramValue name="fastqDir">$$fastqDir$$</paramValue>

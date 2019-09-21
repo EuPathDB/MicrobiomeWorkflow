@@ -55,7 +55,7 @@ taxonRefFile=$clusterWorkflowDataDir/$taxonRefFile
       if ( -f $testSamplesInfoFile) {
         $taskPropFileContent .= "samplesInfoFile=$clusterWorkflowDataDir/$samplesInfoFile\n";
       } else {
-        warn "No samplesInfoFile found..";
+        warn "No samplesInfoFile found at $testSamplesInfoFile";
       }
 
       if ($multiplexed) {

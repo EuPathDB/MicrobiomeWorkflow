@@ -49,7 +49,10 @@
     <prop name="projectName"/>
     <prop name="name"/>
     <prop name="version"/>
-    
+
+
+    <!-- what does this do? -->
+    <!-- ApiCommonData::Load::Plugin::InsertSequenceTaxon -->
     <subgraph name="taxonMapping_${name}" xmlFile="loadDataset.xml">
       <paramValue name="datasetName">taxonMapping_${name}_RSRC</paramValue>
       <paramValue name="datasetLoaderXmlFileName">${projectName}.xml</paramValue>
@@ -60,11 +63,15 @@
   </datasetTemplate>
 
   <!-- should probably be renamed 'OverrideTaxonMapping' or something -->
+  <!-- this does nothing -->
+  <!-- 
    <subgraph name="OverrideTaxonMapping" xmlFile="loadDataset.xml">
      <paramValue name="datasetName">OverrideTaxonMapping_RSRC</paramValue>
      <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
      <paramValue name="parentDataDir"></paramValue>
    </subgraph>
+-->
+<!--
 
   <datasetTemplate class="otuProfiles">
     <prop name="projectName"/>
@@ -78,14 +85,11 @@
       <dependsPattern name="NASeqFromFasta*"/>
       <dependsGlobal name="oboOntologies"/>
     </subgraph>
-
-    <!-- i think these need to also depend on taxonMapping since that loads into apidb.sequencetaxonstring -->    
     <step name="loadTaxonMapping_${name}" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::TaxonStringToNCBI">
       <paramValue name="extDBName">otu_${name}_RSRC</paramValue>
       <depends name="otuProfiles_${name}"/>
       <depends name="OverrideTaxonMapping"/>
     </step>
-  
     <subgraph name="${name}_analyzeOtuExperiment" xmlFile="analyzeGenericProfileExperiment.xml">
       <paramValue name="parentDataDir"></paramValue>
       <paramValue name="experimentDatasetName">otu_${name}_RSRC</paramValue>
@@ -98,7 +102,7 @@
       <depends name="otuProfiles_${name}"/> 
     </subgraph>
   </datasetTemplate>
-
+-->
   <subgraph name="DADA2Taxonomy" xmlFile="loadDataset.xml">
     <paramValue name="datasetName">DADA2Taxonomy_RSRC</paramValue>
     <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
@@ -156,10 +160,14 @@
       <depends name="otuProfilesDADA2_${name}"/>
     </subgraph>
 
+
+    <!-- how does this compare to running the taxonMapping step above? -->
+    <!-- ApiCommonData::Load::Plugin::InsertSequenceTaxon -->
     <step name="loadTaxonMapping_${name}" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::TaxonStringToNCBI">
       <paramValue name="extDBName">otuDADA2_${name}_RSRC</paramValue>
       <depends name="runDADA2OnCluster_${name}"/>
-      <depends name="OverrideTaxonMapping"/> 
+      <dependsPattern name="taxonMapping_*"/>
+<!-- TODO: confirm this does nothing      <depends name="OverrideTaxonMapping"/>  -->
     </step>
 
     <subgraph name="${name}_analyzeOtuExperiment" xmlFile="analyzeGenericProfileExperiment.xml">
@@ -176,6 +184,8 @@
 
  </datasetTemplate>
 
+
+ <!-- why is ontology stuff here instead of in global? -->
   <subgraph name="OBO_Ontology_fma_RSRC" stepLoadTypes="runPlugin:insertOntologyTermsAndRelationships" xmlFile="loadDataset.xml">
    <paramValue name="datasetName">OBO_Ontology_fma_RSRC</paramValue>
    <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>

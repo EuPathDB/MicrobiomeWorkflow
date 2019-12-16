@@ -30,79 +30,6 @@
     <paramValue name="relativeDir">$$relativeAuxiliaryDir$$</paramValue>
     <dependsGlobal name="initUserGroupProject"/>
   </step>
-
-  <datasetTemplate class="NASeqFromFasta">
-    <prop name="projectName"/>
-    <prop name="version"/>
-    <prop name="name"/>
-    
-    <subgraph name="NASeqFromFasta_${name}_RSRC" xmlFile="loadDataset.xml">
-      <paramValue name="datasetName">NASeqFromFasta_${name}_RSRC</paramValue>
-      <paramValue name="datasetLoaderXmlFileName">${projectName}.xml</paramValue>
-      <paramValue name="parentDataDir"></paramValue>
-      <dependsGlobal name="taxonomy"/>
-      <dependsGlobal name="SO"/>
-    </subgraph>
-  </datasetTemplate>
-
-  <datasetTemplate class="taxonMapping">
-    <prop name="projectName"/>
-    <prop name="name"/>
-    <prop name="version"/>
-
-
-    <!-- what does this do? -->
-    <!-- ApiCommonData::Load::Plugin::InsertSequenceTaxon -->
-    <subgraph name="taxonMapping_${name}" xmlFile="loadDataset.xml">
-      <paramValue name="datasetName">taxonMapping_${name}_RSRC</paramValue>
-      <paramValue name="datasetLoaderXmlFileName">${projectName}.xml</paramValue>
-      <paramValue name="parentDataDir"></paramValue>
-      <dependsPattern name="NASeqFromFasta*"/>
-      <dependsGlobal name="taxonomy"/>
-    </subgraph>
-  </datasetTemplate>
-
-  <!-- should probably be renamed 'OverrideTaxonMapping' or something -->
-  <!-- this does nothing -->
-  <!-- 
-   <subgraph name="OverrideTaxonMapping" xmlFile="loadDataset.xml">
-     <paramValue name="datasetName">OverrideTaxonMapping_RSRC</paramValue>
-     <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
-     <paramValue name="parentDataDir"></paramValue>
-   </subgraph>
--->
-<!--
-
-  <datasetTemplate class="otuProfiles">
-    <prop name="projectName"/>
-    <prop name="name"/>
-    <prop name="version"/>
-
-    <subgraph name="otuProfiles_${name}" xmlFile="loadDataset.xml">
-      <paramValue name="datasetName">otu_${name}_RSRC</paramValue>
-      <paramValue name="datasetLoaderXmlFileName">${projectName}.xml</paramValue>
-      <paramValue name="parentDataDir"></paramValue>
-      <dependsPattern name="NASeqFromFasta*"/>
-      <dependsGlobal name="oboOntologies"/>
-    </subgraph>
-    <step name="loadTaxonMapping_${name}" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::TaxonStringToNCBI">
-      <paramValue name="extDBName">otu_${name}_RSRC</paramValue>
-      <depends name="otuProfiles_${name}"/>
-      <depends name="OverrideTaxonMapping"/>
-    </step>
-    <subgraph name="${name}_analyzeOtuExperiment" xmlFile="analyzeGenericProfileExperiment.xml">
-      <paramValue name="parentDataDir"></paramValue>
-      <paramValue name="experimentDatasetName">otu_${name}_RSRC</paramValue>
-      <paramValue name="experimentDatasetVersion">${version}</paramValue>
-      <paramValue name="hasTimeSeries">no</paramValue>
-      <paramValue name="organismAbbrev">DONT CARE</paramValue>
-      <paramValue name="relativeDownloadSiteDir">$$relativeDownloadSiteDir$$</paramValue>
-      <paramValue name="studyName">OTU Profiles ${name}</paramValue>
-      <paramValue name="technologyType">OTU</paramValue>
-      <depends name="otuProfiles_${name}"/> 
-    </subgraph>
-  </datasetTemplate>
--->
   <subgraph name="DADA2Taxonomy" xmlFile="loadDataset.xml">
     <paramValue name="datasetName">DADA2Taxonomy_RSRC</paramValue>
     <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
@@ -233,27 +160,4 @@
     <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
     <paramValue name="parentDataDir"></paramValue>
   </subgraph>
-
-  <!-- will eventually turn into my sunbeam test -->
-  <datasetTemplate class="snakemakeTest">
-    <prop name="projectName"/>
-    <prop name="name"/>
-    <prop name="version"/>
-
-    <subgraph name="snakemake_${name}" xmlFile="loadDataset.xml">
-      <paramValue name="datasetName">snakemake_${name}_RSRC</paramValue>
-      <paramValue name="datasetLoaderXmlFileName">${projectName}.xml</paramValue>
-      <paramValue name="parentDataDir"></paramValue>
-    </subgraph>
-
-    <subgraph name="runSnakemakeOnCluster_${name}" xmlFile="runSnakemakeOnCluster.xml">
-      <paramValue name="projectName">${projectName}</paramValue>
-      <paramValue name="parentDataDir"></paramValue>
-      <paramValue name="extDBName">snakemake_${name}_RSRC</paramValue>
-      <paramValue name="snakefile">test</paramValue>
-      <paramValue name="config"></paramValue>
-      <depends name="snakemake_${name}"/>
-    </subgraph>
-  </datasetTemplate> 
-
 </workflowGraph>

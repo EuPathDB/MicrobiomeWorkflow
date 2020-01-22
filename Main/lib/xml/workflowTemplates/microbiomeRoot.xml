@@ -15,7 +15,6 @@
     <paramValue name="projectName">$$projectName$$</paramValue>
   </globalSubgraph>
   
-
   <step name="makeProjectReleaseDownloadDir" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::InitSiteDir">
     <paramValue name="relativeDir">$$relativeDownloadSiteDir$$</paramValue>
     <dependsGlobal name="initUserGroupProject"/>
@@ -30,20 +29,20 @@
     <paramValue name="relativeDir">$$relativeAuxiliaryDir$$</paramValue>
     <dependsGlobal name="initUserGroupProject"/>
   </step>
-  <subgraph name="DADA2Taxonomy" xmlFile="loadDataset.xml">
-    <paramValue name="datasetName">DADA2Taxonomy_RSRC</paramValue>
+
+  <subgraph name="rRNAReference" xmlFile="loadDataset.xml">
+    <paramValue name="datasetName">rRNAReference_RSRC</paramValue>
     <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
     <paramValue name="parentDataDir"></paramValue>
   </subgraph>
 
   <step name="mirrorDADA2TaxonomyToCluster" stepClass="ReFlow::StepClasses::MirrorToComputeCluster" stepLoadTypes="toCluster">
-    <paramValue name="fileOrDirToMirror">DADA2Taxonomy_RSRC</paramValue>
-    <depends name="DADA2Taxonomy"/>
+    <paramValue name="fileOrDirToMirror">rRNAReference_RSRC</paramValue>
+    <depends name="rRNAReference"/>
     <dependsGlobal name="initClusterHomeDir"/>
   </step>
 
-  <datasetTemplate class="otuProfilesDADA2">
-    <prop name="projectName"/>
+  <datasetTemplate class="rRNAExperiment">
     <prop name="name"/>
     <prop name="version"/>
     <prop name="multiplexed"/>
@@ -58,20 +57,21 @@
     <prop name="platform"/>
     <prop name="sraStudyId"/>
     <prop name="mergeTechReps"/>
-  
-    <subgraph name="otuProfilesDADA2_${name}" xmlFile="loadDataset.xml">
+
+    <subgraph name="rRNAExperiment_${name}_copyManualDeliveryFiles" xmlFile="loadDataset.xml">
       <paramValue name="datasetName">otuDADA2_${name}_RSRC</paramValue>
       <paramValue name="datasetLoaderXmlFileName">${projectName}.xml</paramValue>
       <paramValue name="parentDataDir"></paramValue>
-      <depends name="mirrorDADA2TaxonomyToCluster"/>
-      <dependsGlobal name="oboOntologies"/>
-      <dependsGlobal name="taxonomy"/>
     </subgraph>
 
-    <subgraph name="runDADA2OnCluster_${name}" xmlFile="runDADA2OnCluster.xml">
-      <paramValue name="projectName">${projectName}</paramValue>
-      <paramValue name="parentDataDir"></paramValue>
-      <paramValue name="extDBName">otuDADA2_${name}_RSRC</paramValue>
+    <subgraph name="rRNAExperiment_${name}" xmlFile="runDADA2OnCluster.xml">
+      <paramValue name="projectName">$$projectName$$</paramValue>
+      <paramValue name="datasetName">otuDADA2_${name}_RSRC</paramValue>
+      <paramValue name="trainingSetPath">rRNAReference_RSRC/trainingSet.fa.gz</paramValue>
+      <paramValue name="speciesAssignmentPath">rRNAReference_RSRC/speciesAssignment.fa.gz</paramValue>
+      <paramValue name="resultDir">all_results</paramValue>
+      <paramValue name="resultFileName">${name}.lineage_abundance.tsv</paramValue>
+      <paramValue name="version">${version}</paramValue>
       <paramValue name="multiplexed">${multiplexed}</paramValue>
       <paramValue name="barcodesType">${barcodesType}</paramValue>
       <paramValue name="samplesInfoFile">${samplesInfoFile}</paramValue>
@@ -87,30 +87,28 @@
       <depends name="otuProfilesDADA2_${name}"/>
     </subgraph>
 
-
-    <!-- how does this compare to running the taxonMapping step above? -->
-    <!-- ApiCommonData::Load::Plugin::InsertSequenceTaxon -->
-    <step name="loadTaxonMapping_${name}" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::TaxonStringToNCBI">
-      <paramValue name="extDBName">otuDADA2_${name}_RSRC</paramValue>
-      <depends name="runDADA2OnCluster_${name}"/>
-      <dependsPattern name="taxonMapping_*"/>
-<!-- TODO: confirm this does nothing      <depends name="OverrideTaxonMapping"/>  -->
+    <step name="insertOtuAbundances_${name}" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::InsertOtuAbundances">
+      <paramValue name="inputPath">all_results/${name}.lineage_abundance.tsv</paramValue>
+      <paramValue name="datasetName">otuDADA2_${name}_RSRC</paramValue>
+      <depends name="rRNAExperiment_${name}"/>
     </step>
 
-    <subgraph name="${name}_analyzeOtuExperiment" xmlFile="analyzeGenericProfileExperiment.xml">
-      <paramValue name="parentDataDir"></paramValue>
-      <paramValue name="experimentDatasetName">otuDADA2_${name}_RSRC</paramValue>
-      <paramValue name="experimentDatasetVersion">${version}</paramValue>
-      <paramValue name="hasTimeSeries">no</paramValue>
-      <paramValue name="organismAbbrev">DONT CARE</paramValue>
-      <paramValue name="relativeDownloadSiteDir">$$relativeDownloadSiteDir$$</paramValue>
-      <paramValue name="studyName">OTU Profiles ${name}</paramValue>
-      <paramValue name="technologyType">OTU</paramValue>
-      <depends name="loadTaxonMapping_${name}"/>  
-    </subgraph>
+  </datasetTemplate>
 
- </datasetTemplate>
+  <!-- Used to happen without dependencies, I'm not sure how it has ever worked -->
+  <subgraph name="crossStudyCard" xmlFile="loadDataset.xml">
+    <paramValue name="datasetName">CrossStudy_RSRC</paramValue>
+    <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
+    <paramValue name="parentDataDir"></paramValue>
+    <dependsPattern name="rRNAExperiment_*"/>
+  </subgraph>
 
+   <subgraph name="createLineageTaxonLinkingTable" xmlFile="loadDataset.xml">
+    <paramValue name="datasetName">LineageTaxonLinkingTable_RSRC</paramValue>
+    <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
+    <dependsPattern name="rRNAExperiment_*"/>
+    <dependsGlobal name="taxonomy"/>
+   </step>
 
  <!-- why is ontology stuff here instead of in global? -->
   <subgraph name="OBO_Ontology_fma_RSRC" stepLoadTypes="runPlugin:insertOntologyTermsAndRelationships" xmlFile="loadDataset.xml">
@@ -120,21 +118,24 @@
    <dependsGlobal name="oboOntologies"/>
  </subgraph>
 
-
  <subgraph name="ISASimpleMicrobiome" xmlFile="loadDataset.xml">
     <paramValue name="datasetName">ISASimple_RSRC</paramValue>
     <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
     <paramValue name="parentDataDir"></paramValue>
     <depends name="OBO_Ontology_fma_RSRC"/>
-    <dependsPattern name="*Experiment"/>
+    <dependsPattern name="*Experiment"/> <!-- Wojtek: I think this doesn't match anything -->
     <dependsGlobal name="eupathCuratedOntologies"/>
   </subgraph>
 
+  <!-- Should happen after all the analyses are done, and all the metadata has been inserted -->
   <step name="tuningManager"
           stepClass="ApiCommonWorkflow::Main::WorkflowSteps::MakeDerivedTables" stepLoadTypes="tuningManager">
     <paramValue name="tables">Samples,PANExtDbRls,Ontology,Metadata,TaxonRelativeAbundance</paramValue>
     <paramValue name="organismAbbrev"></paramValue>
       <depends name="ISASimpleMicrobiome"/>
+      <dependsPattern name="rRNAExperiment_*"/>
+      <depends name="crossStudyCard"/>
+      <depends name="createLineageTaxonLinkingTable"/>
   </step>
 
   <step name="makeDownloadFileDir" stepClass="ReFlow::StepClasses::MakeDataDir">
@@ -144,6 +145,7 @@
   <step name="makeDownloadFiles"
         stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::MakeDownloadFiles">
     <paramValue name="outputFileBaseName">downloadSite</paramValue>
+    <depends name="makeDownloadFileDir"/>
     <depends name="tuningManager"/>
   </step>
 
@@ -155,9 +157,4 @@
     <depends name="makeProjectReleaseDownloadDir"/>
   </step>
 
-  <subgraph name="crossStudyCard" xmlFile="loadDataset.xml">
-    <paramValue name="datasetName">CrossStudy_RSRC</paramValue>
-    <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
-    <paramValue name="parentDataDir"></paramValue>
-  </subgraph>
 </workflowGraph>

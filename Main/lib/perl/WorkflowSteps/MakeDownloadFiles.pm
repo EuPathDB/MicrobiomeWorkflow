@@ -4,9 +4,6 @@ package MicrobiomeWorkflow::Main::WorkflowSteps::MakeDownloadFiles;
 
 use strict;
 use ApiCommonWorkflow::Main::WorkflowSteps::WorkflowStep;
-use ApiCommonData::Load::OwlReader;
-
-use Digest::SHA qw(sha1_hex); 
 
 sub run {
   my ($self, $test, $undo) = @_;

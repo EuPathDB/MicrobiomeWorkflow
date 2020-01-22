@@ -3,66 +3,70 @@ package MicrobiomeWorkflow::Main::WorkflowSteps::MakeDADA2TaskInputDir;
 @ISA = (ApiCommonWorkflow::Main::WorkflowSteps::WorkflowStep);
 
 use strict;
+use warnings;
 use ApiCommonWorkflow::Main::WorkflowSteps::WorkflowStep;
 
 sub run {
   my ($self, $test, $undo) = @_;
 
   # get parameter values
-  my $taskInputDir = $self->getParamValue("taskInputDir");
-  my $fastqDir = $self->getParamValue("fastqDir");
-  my $multiplexed = $self->getBooleanParamValue("multiplexed");
+  my $propsDir = $self->getParamValue("propsDir");
+  my $workingDir = $self->getParamValue("workingDir");
+  my $trainingSetPath = $self->getParamValue("trainingSetPath");
+  my $speciesAssignmentPath = $self->getParamValue("speciesAssignmentPath");
+  my $resultPath = $self->getParamValue("resultPath");
   my $keepNode = $self->getParamValue("keepNode");
-  my $barcodesType = $self->getParamValue("barcodesType");
   my $samplesInfoFile = $self->getParamValue("samplesInfoFile");
+  my $samplesInfoDir = $self->getParamValue("samplesInfoDir");
   my $isPaired = $self->getParamValue("isPaired");
   my $trimLeft = $self->getParamValue("trimLeft");
   my $trimLeftR = $self->getParamValue("trimLeftR");
   my $truncLen = $self->getParamValue("truncLen");
   my $truncLenR = $self->getParamValue("truncLenR");
   my $readLen = $self->getParamValue("readLen");
-  my $taxonRefFile = $self->getParamValue('taxonRefFile');
-  my $platform = $self->getParamValue('platform');
-  my $sraStudyId = $self->getParamValue('sraStudyId');
-  my $mergeTechReps = $self->getBooleanParamValue('mergeTechReps');
+  my $platform = $self->getParamValue("platform");
+  my $fastqsDir = $self->getParamValue("fastqsDir");
+  my $sraStudyId = $self->getParamValue("sraStudyId");
+  my $mergeTechReps = $self->getBooleanParamValue("mergeTechReps");
   my $taskSize = 1;
 
   my $clusterWorkflowDataDir = $self->getClusterWorkflowDataDir();
   my $workflowDataDir = $self->getWorkflowDataDir();
-  my $wfName = $self->getWorkflowConfig('name');
+  my $wfName = $self->getWorkflowConfig("name");
 
   if ($undo) {
-    $self->runCmd(0, "rm -rf $workflowDataDir/$taskInputDir/");
+    $self->runCmd(0, "rm -rf $workflowDataDir/$propsDir/");
   }else {
       #TODO check params here??
-      $self->runCmd(0,"mkdir -p $workflowDataDir/$taskInputDir");
+      $self->runCmd(0,"mkdir -p $workflowDataDir/$propsDir");
 
       # make controller.prop file
-      $self->makeDistribJobControllerPropFile($taskInputDir, 1, $taskSize,
+      $self->makeDistribJobControllerPropFile($propsDir, 1, $taskSize,
 				       "DJob::DistribJobTasks::ASVTableTask", $keepNode); 
-      # make task.prop file
-      my $taskPropFile = "$workflowDataDir/$taskInputDir/task.prop";
-      open(F, ">$taskPropFile") || die "Can't open task prop file '$taskPropFile' for writing";
 
 #TODO probably need to build up paths here, but placeholders for now
       my $taskPropFileContent="
-
-dataDir=$clusterWorkflowDataDir/$fastqDir
-taxonRefFile=$clusterWorkflowDataDir/$taxonRefFile
+workingDir=$clusterWorkflowDataDir/$workingDir
+trainingSetFile=$clusterWorkflowDataDir/$trainingSetPath
+speciesAssignmentFile=$clusterWorkflowDataDir/$speciesAssignmentPath
+resultFile=$clusterWorkflowDataDir/$resultPath
 ";
 
-      my $testSamplesInfoFile = "$workflowDataDir/$samplesInfoFile";
-      if ( -f $testSamplesInfoFile) {
-        $taskPropFileContent .= "samplesInfoFile=$clusterWorkflowDataDir/$samplesInfoFile\n";
+      if ($samplesInfoFile){
+        if ( -f "$workflowDataDir/$samplesInfoDir/$samplesInfoFile") {
+          $taskPropFileContent .= "samplesInfoFile=$clusterWorkflowDataDir/$samplesInfoDir/$samplesInfoFile\n";
+        } else {
+        die "Samples info file $samplesInfoFile specified, but not found at $workflowDataDir/$samplesInfoDir/$samplesInfoFile";
+        }
+      }
+      if ( -d "$workflowDataDir/$fastqsDir" ){
+        $taskPropFileContent .= "dataDir=$clusterWorkflowDataDir/$fastqsDir\n";
+      } elsif ($sraStudyId) {
+        $taskPropFileContent .= "sraStudyId=$sraStudyId\n";
       } else {
-        warn "No samplesInfoFile found at $testSamplesInfoFile";
+        die "Fastqs from manual delivery not at $workflowDataDir/$fastqsDir, and no sraStudyId specified";
       }
 
-      if ($multiplexed) {
-        $taskPropFileContent .= "multiplexed=true\n";
-      } else {
-        $taskPropFileContent .= "multiplexed=false\n";
-      }
       if ($mergeTechReps) {
         $taskPropFileContent .= "mergeTechReps=true\n";
       } else {
@@ -70,9 +74,6 @@ taxonRefFile=$clusterWorkflowDataDir/$taxonRefFile
       } 
       if ($isPaired) {
         $taskPropFileContent .= "isPaired=$isPaired\n";        
-      }
-      if ($barcodesType) {
-        $taskPropFileContent .= "barcodesType=$barcodesType\n";
       }
       if ($trimLeft) {
         $taskPropFileContent .= "trimLeft=$trimLeft\n";
@@ -92,9 +93,10 @@ taxonRefFile=$clusterWorkflowDataDir/$taxonRefFile
       if ($platform) {
         $taskPropFileContent .= "platform=$platform\n";
       }
-      if ($sraStudyId) {
-        $taskPropFileContent .= "sraStudyId=$sraStudyId\n";
-      }
+
+      # make task.prop file
+      my $taskPropFile = "$workflowDataDir/$propsDir/task.prop";
+      open(F, ">$taskPropFile") or die "$!: can't open task prop file '$taskPropFile' for writing";
 
       print F "$taskPropFileContent\n";
        close(F);

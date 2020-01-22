@@ -1,7 +1,5 @@
 <workflowGraph name="runDADA2OnCluster">
-  <param name="projectName"/>
-  <param name="parentDataDir"/>
-  <param name="extDBName"/>
+  <param name="datasetName"/>
   <param name="multiplexed"/>
   <param name="barcodesType"/>
   <param name="samplesInfoFile"/>
@@ -14,60 +12,52 @@
   <param name="platform"/>
   <param name="sraStudyId"/>
   <param name="mergeTechReps"/>
+  <param name="trainingSetPath"/>
+  <param name="speciesAssignmentPath"/>
+  <param name="resultDir"/>
+  <param name="resultFileName"/>
 
-  <constant name="fastqDir">$$parentDataDir$$/$$extDBName$$/final</constant>
-  <constant name="dataDir">$$parentDataDir$$/$$extDBName$$/cluster</constant>
-  <constant name="taxonRefFile">$$parentDataDir$$/DADA2Taxonomy_RSRC/DADA2Taxonomy_trainSet.fa.gz</constant>
-  <constant name="samplesInfoFile">$$parentDataDir$$/$$extDBName$$/final/$$samplesInfoFile$$</constant>
-
-  <step name="makeClusterDir" stepClass="ReFlow::StepClasses::MakeDataDir">
-    <paramValue name="dataDir">$$extDBName$$/cluster</paramValue>
-  </step>
-
-  <step name="mirrorDatadirToCluster" stepClass="ReFlow::StepClasses::MirrorToComputeCluster" stepLoadTypes="toCluster">
-    <paramValue name="fileOrDirToMirror">$$extDBName$$</paramValue>
-    <depends name="makeClusterDir"/>
-  </step>
-  
-  <step name="makeDADA2InputDir" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::MakeDADA2TaskInputDir">
-    <paramValue name="taskInputDir">$$dataDir$$/input</paramValue>
-    <paramValue name="fastqDir">$$fastqDir$$</paramValue>
+  <step name="makeDADA2PropsDir" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::MakeDADA2TaskInputDir">
+    <paramValue name="propsDir">$$datasetName$$/props</paramValue>
+    <paramValue name="workingDir">$$datasetName$$/working</paramValue>
+    <paramValue name="trainingSetPath">$$trainingSetPath$$</paramValue>
+    <paramValue name="speciesAssignmentPath">$$speciesAssignmentPath$$</paramValue>
+    <paramValue name="resultPath">$$resultDir$$/$$resultFileName$$</paramValue>
     <paramValue name="multiplexed">$$multiplexed$$</paramValue>
     <paramValue name="keepNode">yes</paramValue>
     <paramValue name="barcodesType">$$barcodesType$$</paramValue>
     <paramValue name="samplesInfoFile">$$samplesInfoFile$$</paramValue>
+    <paramValue name="samplesInfoDir">$$datasetName$$</paramValue>
     <paramValue name="isPaired">$$isPaired$$</paramValue>
     <paramValue name="trimLeft">$$trimLeft$$</paramValue>
     <paramValue name="trimLeftR">$$trimLeftR$$</paramValue>
     <paramValue name="truncLen">$$truncLen$$</paramValue>
     <paramValue name="truncLenR">$$truncLenR$$</paramValue>
     <paramValue name="readLen">$$readLen$$</paramValue>
-    <paramValue name="taxonRefFile">$$taxonRefFile$$</paramValue>
     <paramValue name="platform">$$platform$$</paramValue>
+    <paramValue name="fastqsDir">$$datasetName$$/fastqsFromManualDelivery</paramValue>
     <paramValue name="sraStudyId">$$sraStudyId$$</paramValue>
     <paramValue name="mergeTechReps">$$mergeTechReps$$</paramValue>
-    <depends name="makeClusterDir"/>
   </step>
 
-  <step name="mirrorToCluster" stepClass="ReFlow::StepClasses::MirrorToComputeCluster" stepLoadTypes="toCluster">
-    <paramValue name="fileOrDirToMirror">$$dataDir$$/input</paramValue>
-    <depends name="makeDADA2InputDir"/>
-    <depends name="mirrorDatadirToCluster"/>
+  <step name="mirrorPropsAndSupplementaryDataToCluster" stepClass="ReFlow::StepClasses::MirrorToComputeCluster" stepLoadTypes="toCluster">
+    <paramValue name="fileOrDirToMirror">$$datasetName$$</paramValue>
+    <depends name="makeDADA2PropsDir"/>
   </step>
 
   <step name="runClusterTask" stepClass="ReFlow::StepClasses::RunAndMonitorDistribJob">
-    <paramValue name="taskInputDir">$$dataDir$$/input</paramValue>
+    <paramValue name="taskInputDir">$$datasetName$$/props</paramValue>
     <paramValue name="numNodes">20</paramValue>
     <paramValue name="maxMemoryGigs">15</paramValue>
     <paramValue name="processorsPerNode">1</paramValue>
-    <depends name="mirrorToCluster"/>
+    <depends name="mirrorPropsAndSupplementaryDataToCluster"/>
   </step>
 
-  <step name="mirrorFromCluster" stepClass="ReFlow::StepClasses::MirrorFromComputeCluster" stepLoadTypes="fromCluster">
-    <paramValue name="fileOrDirToMirror">$$dataDir$$/master</paramValue>
-    <paramValue name="outputDir">$$dataDir$$/master/mainresult</paramValue>
-    <paramValue name="outputFiles">TODO</paramValue>
-    <paramValue name="deleteAfterCopy">true</paramValue>
+  <step name="mirrorResultsFromCluster" stepClass="ReFlow::StepClasses::MirrorFromComputeCluster" stepLoadTypes="fromCluster">
+    <paramValue name="fileOrDirToMirror">$$resultDir$$/$$resultFileName$$</paramValue>
+    <paramValue name="outputDir">$$resultDir$$</paramValue>
+    <paramValue name="outputFiles">$$resultFileName$$</paramValue>
+    <paramValue name="deleteAfterCopy">false</paramValue>
     <depends name="runClusterTask"/>
   </step>
 

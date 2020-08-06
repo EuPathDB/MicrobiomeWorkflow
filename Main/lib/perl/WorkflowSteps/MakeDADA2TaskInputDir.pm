@@ -59,7 +59,7 @@ resultFile=$clusterWorkflowDataDir/$resultPath
         die "Samples info file $samplesInfoFile specified, but not found at $workflowDataDir/$samplesInfoDir/$samplesInfoFile";
         }
       }
-      if ( -d "$workflowDataDir/$fastqsDir" ){
+      if ( glob("$workflowDataDir/$fastqsDir/*") ){
         $taskPropFileContent .= "dataDir=$clusterWorkflowDataDir/$fastqsDir\n";
       } elsif ($sraStudyId) {
         $taskPropFileContent .= "sraStudyId=$sraStudyId\n";

@@ -42,11 +42,12 @@
     <dependsGlobal name="initClusterHomeDir"/>
   </step>
 
+  <step name="beginRRNAExperiments" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::DoNothingStep">
+  </step>
+
   <datasetTemplate class="rRNAExperiment">
     <prop name="name"/>
     <prop name="version"/>
-    <prop name="multiplexed"/>
-    <prop name="barcodesType"/>
     <prop name="samplesInfoFile"/>
     <prop name="isPaired"/>
     <prop name="trimLeft"/>
@@ -62,6 +63,7 @@
       <paramValue name="datasetName">otuDADA2_${name}_RSRC</paramValue>
       <paramValue name="datasetLoaderXmlFileName">${projectName}.xml</paramValue>
       <paramValue name="parentDataDir"></paramValue>
+      <depends name="beginRRNAExperiments"/>
     </subgraph>
 
     <subgraph name="rRNAExperiment_${name}" xmlFile="runDADA2OnCluster.xml">
@@ -72,8 +74,6 @@
       <paramValue name="resultDir">all_results</paramValue>
       <paramValue name="resultFileName">${name}.lineage_abundance.tsv</paramValue>
       <paramValue name="version">${version}</paramValue>
-      <paramValue name="multiplexed">${multiplexed}</paramValue>
-      <paramValue name="barcodesType">${barcodesType}</paramValue>
       <paramValue name="samplesInfoFile">${samplesInfoFile}</paramValue>
       <paramValue name="isPaired">${isPaired}</paramValue>
       <paramValue name="trimLeft">${trimLeft}</paramValue>
@@ -84,56 +84,49 @@
       <paramValue name="platform">${platform}</paramValue>
       <paramValue name="sraStudyId">${sraStudyId}</paramValue>
       <paramValue name="mergeTechReps">${mergeTechReps}</paramValue>
-      <depends name="otuProfilesDADA2_${name}"/>
+      <depends name="rRNAExperiment_${name}_copyManualDeliveryFiles"/>
     </subgraph>
 
-    <step name="insertOtuAbundances_${name}" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::InsertOtuAbundances">
+    <step name="insertOtuAbundances_${name}" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::InsertLineageAbundances">
       <paramValue name="inputPath">all_results/${name}.lineage_abundance.tsv</paramValue>
       <paramValue name="datasetName">otuDADA2_${name}_RSRC</paramValue>
       <depends name="rRNAExperiment_${name}"/>
+      <dependsGlobal name="taxonomy"/> <!-- study.ProtocolAppNode references sres.OntologyTerm to know the ontology term for "data item"-->
     </step>
 
   </datasetTemplate>
 
-  <!-- Used to happen without dependencies, I'm not sure how it has ever worked -->
   <subgraph name="crossStudyCard" xmlFile="loadDataset.xml">
     <paramValue name="datasetName">CrossStudy_RSRC</paramValue>
     <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
     <paramValue name="parentDataDir"></paramValue>
-    <dependsPattern name="rRNAExperiment_*"/>
+    <dependsPattern name="insertOtuAbundances_*"/>
   </subgraph>
 
    <subgraph name="createLineageTaxonLinkingTable" xmlFile="loadDataset.xml">
     <paramValue name="datasetName">LineageTaxonLinkingTable_RSRC</paramValue>
     <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
-    <dependsPattern name="rRNAExperiment_*"/>
+    <paramValue name="parentDataDir"></paramValue>
+    <dependsPattern name="insertOtuAbundances_*"/>
     <dependsGlobal name="taxonomy"/>
-   </step>
-
- <!-- why is ontology stuff here instead of in global? -->
-  <subgraph name="OBO_Ontology_fma_RSRC" stepLoadTypes="runPlugin:insertOntologyTermsAndRelationships" xmlFile="loadDataset.xml">
-   <paramValue name="datasetName">OBO_Ontology_fma_RSRC</paramValue>
-   <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
-   <paramValue name="parentDataDir">global/oboOntologies</paramValue>
-   <dependsGlobal name="oboOntologies"/>
- </subgraph>
+   </subgraph>
 
  <subgraph name="ISASimpleMicrobiome" xmlFile="loadDataset.xml">
     <paramValue name="datasetName">ISASimple_RSRC</paramValue>
     <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
     <paramValue name="parentDataDir"></paramValue>
-    <depends name="OBO_Ontology_fma_RSRC"/>
-    <dependsPattern name="*Experiment"/> <!-- Wojtek: I think this doesn't match anything -->
+    <dependsPattern name="insertOtuAbundances_*"/>
+    <depends name="crossStudyCard"/>
     <dependsGlobal name="eupathCuratedOntologies"/>
   </subgraph>
 
   <!-- Should happen after all the analyses are done, and all the metadata has been inserted -->
   <step name="tuningManager"
-          stepClass="ApiCommonWorkflow::Main::WorkflowSteps::MakeDerivedTables" stepLoadTypes="tuningManager">
-    <paramValue name="tables">Samples,PANExtDbRls,Ontology,Metadata,TaxonRelativeAbundance</paramValue>
+          stepClass="ApiCommonWorkflow::Main::WorkflowSteps::MakeMbioDerivedTables" stepLoadTypes="tuningManager">
+    <paramValue name="tables">Samples,InferredParams,PANExtDbRls,Ontology,Metadata,TaxonAbundance,TaxonRelativeAbundance,EupathBuildDates,ExternalDbDatasetPresenter</paramValue>
     <paramValue name="organismAbbrev"></paramValue>
       <depends name="ISASimpleMicrobiome"/>
-      <dependsPattern name="rRNAExperiment_*"/>
+      <dependsPattern name="insertOtuAbundances_*"/>
       <depends name="crossStudyCard"/>
       <depends name="createLineageTaxonLinkingTable"/>
   </step>

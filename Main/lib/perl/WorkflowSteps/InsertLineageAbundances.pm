@@ -1,8 +1,10 @@
 package MicrobiomeWorkflow::Main::WorkflowSteps::InsertLineageAbundances;
 
+@ISA = (ApiCommonWorkflow::Main::WorkflowSteps::WorkflowStep);
+
 use strict;
 use warnings;
-use parent ApiCommonWorkflow::Main::WorkflowSteps::WorkflowStep;
+use ApiCommonWorkflow::Main::WorkflowSteps::WorkflowStep;
 
 sub run {
     my ($self, $test, $undo) = @_;
@@ -12,6 +14,6 @@ sub run {
     $self->testInputFile('inputPath', $inputPath);
     my $datasetName = $self->getParamValue('datasetName');
 
-    $self->runPlugin($test, $undo, "ApiCommonData::Load::Plugin::LineageAbundances", "--inputPath $inputPath --datasetName $datasetName");
+    $self->runPlugin($test, $undo, "ApiCommonData::Load::LineageAbundances", "--inputPath $inputPath --datasetName $datasetName");
 }
 1;

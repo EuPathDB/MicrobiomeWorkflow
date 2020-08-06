@@ -1,7 +1,5 @@
 <workflowGraph name="runDADA2OnCluster">
   <param name="datasetName"/>
-  <param name="multiplexed"/>
-  <param name="barcodesType"/>
   <param name="samplesInfoFile"/>
   <param name="isPaired"/>
   <param name="trimLeft"/>
@@ -23,9 +21,7 @@
     <paramValue name="trainingSetPath">$$trainingSetPath$$</paramValue>
     <paramValue name="speciesAssignmentPath">$$speciesAssignmentPath$$</paramValue>
     <paramValue name="resultPath">$$resultDir$$/$$resultFileName$$</paramValue>
-    <paramValue name="multiplexed">$$multiplexed$$</paramValue>
     <paramValue name="keepNode">yes</paramValue>
-    <paramValue name="barcodesType">$$barcodesType$$</paramValue>
     <paramValue name="samplesInfoFile">$$samplesInfoFile$$</paramValue>
     <paramValue name="samplesInfoDir">$$datasetName$$</paramValue>
     <paramValue name="isPaired">$$isPaired$$</paramValue>

@@ -1,5 +1,5 @@
 <workflowGraph name="runDADA2OnCluster">
-  <param name="datasetName"/>
+  <param name="analysisDir"/>
   <param name="samplesInfoFile"/>
   <param name="isPaired"/>
   <param name="trimLeft"/>
@@ -13,17 +13,17 @@
   <param name="trainingSetPath"/>
   <param name="speciesAssignmentPath"/>
   <param name="resultDir"/>
-  <param name="resultFileName"/>
+  <param name="otuCountsFileName"/>
 
   <step name="makeDADA2PropsDir" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::MakeDADA2TaskInputDir">
-    <paramValue name="propsDir">$$datasetName$$/props</paramValue>
-    <paramValue name="workingDir">$$datasetName$$/working</paramValue>
+    <paramValue name="propsDir">$$analysisDir$$/props</paramValue>
+    <paramValue name="workingDir">$$analysisDir$$/working</paramValue>
     <paramValue name="trainingSetPath">$$trainingSetPath$$</paramValue>
     <paramValue name="speciesAssignmentPath">$$speciesAssignmentPath$$</paramValue>
-    <paramValue name="resultPath">$$resultDir$$/$$resultFileName$$</paramValue>
+    <paramValue name="resultPath">$$resultDir$$/$$otuCountsFileName$$</paramValue>
     <paramValue name="keepNode">yes</paramValue>
     <paramValue name="samplesInfoFile">$$samplesInfoFile$$</paramValue>
-    <paramValue name="samplesInfoDir">$$datasetName$$</paramValue>
+    <paramValue name="samplesInfoDir">$$analysisDir$$</paramValue>
     <paramValue name="isPaired">$$isPaired$$</paramValue>
     <paramValue name="trimLeft">$$trimLeft$$</paramValue>
     <paramValue name="trimLeftR">$$trimLeftR$$</paramValue>
@@ -31,18 +31,18 @@
     <paramValue name="truncLenR">$$truncLenR$$</paramValue>
     <paramValue name="readLen">$$readLen$$</paramValue>
     <paramValue name="platform">$$platform$$</paramValue>
-    <paramValue name="fastqsDir">$$datasetName$$/fastqsFromManualDelivery</paramValue>
+    <paramValue name="fastqsDir">$$analysisDir$$/fastqsFromManualDelivery</paramValue>
     <paramValue name="sraStudyId">$$sraStudyId$$</paramValue>
     <paramValue name="mergeTechReps">$$mergeTechReps$$</paramValue>
   </step>
 
-  <step name="mirrorPropsAndSupplementaryDataToCluster" stepClass="ReFlow::StepClasses::MirrorToComputeCluster" stepLoadTypes="toCluster">
-    <paramValue name="fileOrDirToMirror">$$datasetName$$</paramValue>
+  <step name="mirrorPropsAndSupplementaryDataToCluster" stepClass="MicrobiomeWorkflow::Main::MirrorToComputeCluster" stepLoadTypes="toCluster">
+    <paramValue name="fileOrDirToMirror">$$analysisDir$$</paramValue>
     <depends name="makeDADA2PropsDir"/>
   </step>
 
   <step name="runClusterTask" stepClass="ReFlow::StepClasses::RunAndMonitorDistribJob">
-    <paramValue name="taskInputDir">$$datasetName$$/props</paramValue>
+    <paramValue name="taskInputDir">$$analysisDir$$/props</paramValue>
     <paramValue name="numNodes">20</paramValue>
     <paramValue name="maxMemoryGigs">15</paramValue>
     <paramValue name="processorsPerNode">1</paramValue>
@@ -50,9 +50,9 @@
   </step>
 
   <step name="mirrorResultsFromCluster" stepClass="ReFlow::StepClasses::MirrorFromComputeCluster" stepLoadTypes="fromCluster">
-    <paramValue name="fileOrDirToMirror">$$resultDir$$/$$resultFileName$$</paramValue>
+    <paramValue name="fileOrDirToMirror">$$resultDir$$/$$otuCountsFileName$$</paramValue>
     <paramValue name="outputDir">$$resultDir$$</paramValue>
-    <paramValue name="outputFiles">$$resultFileName$$</paramValue>
+    <paramValue name="outputFiles">$$otuCountsFileName$$</paramValue>
     <paramValue name="deleteAfterCopy">false</paramValue>
     <depends name="runClusterTask"/>
   </step>

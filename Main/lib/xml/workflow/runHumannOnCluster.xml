@@ -1,0 +1,41 @@
+<workflowGraph name="runHumannOnCluster">
+  <param name="sampleToFastqFileName"/>
+  <param name="analysisDir"/>
+  <param name="resultDir"/>
+  <param name="otuCountsFileName"/>
+  <param name="pathwayAbundancesFileName"/>
+  <param name="pathwayCoveragesFileName"/>
+  <param name="level4ECsFileName"/>
+
+  <step name="makeHumannNextflowConfig" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::MakeHumannNextflowConfig">
+    <paramValue name="analysisDir">$$analysisDir$$</paramValue>
+    <paramValue name="sampleToFastqFileName">$$sampleToFastqFileName$$</paramValue>
+    <paramValue name="clusterResultDir">$$analysisDir$$/results</paramValue>
+    <paramValue name="configFileName">nextflow.config</paramValue>
+  </step>
+
+  <step name="mirrorToCluster" stepClass="MicrobiomeWorkflow::Main::MirrorToComputeCluster" stepLoadTypes="toCluster">
+    <paramValue name="fileOrDirToMirror">$$analysisDir$$</paramValue>
+    <depends name="makeHumannNextflowConfig"/>
+  </step>
+
+  <step name="runClusterTask" stepClass="ReFlow::StepClasses::RunAndMonitorNextflow">
+    <paramValue name="workingDir">$$analysisDir$$</paramValue>
+    <paramValue name="resultsDir">$$analysisDir$$/results</paramValue>
+    <paramValue name="nextflowConfigFile">$$analysisDir$$/nextflow.config</paramValue>
+    <paramValue name="nextflowWorkflow">wbazant/humann-nextflow</paramValue>
+    <paramValue name="isGitRepo">true</paramValue>    
+    <depends name="mirrorToCluster"/>
+  </step>
+
+  <step name="retrieveHumannResultsFromComputeCluster" stepClass="MicrobiomeWorkflow::Main::RetrieveHumannResultsFromComputeCluster" stepLoadTypes="fromCluster">
+    <paramValue name="clusterDir">$$analysisDir$$/results</paramValue>
+    <paramValue name="targetDir">$$resultDir$$</paramValue>
+    <paramValue name="otuCountsFileName">$$otuCountsFileName$$</paramValue>
+    <paramValue name="pathwayAbundancesFileName">$$pathwayAbundancesFileName$$</paramValue>
+    <paramValue name="pathwayCoveragesFileName">$$pathwayCoveragesFileName$$</paramValue>
+    <paramValue name="level4ECsFileName">$$level4ECsFileName$$</paramValue>
+    <depends name="runClusterTask"/>
+  </step>
+</workflowGraph>
+

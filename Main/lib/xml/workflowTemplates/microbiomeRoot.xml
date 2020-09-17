@@ -42,11 +42,20 @@
     <dependsGlobal name="initClusterHomeDir"/>
   </step>
 
-  <step name="beginRRNAExperiments" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::DoNothingStep">
+  <step name="makeResultsDir" stepClass="ReFlow::StepClasses::MakeDataDir">
+    <paramValue name="dataDir">all_results</paramValue>
   </step>
 
-  <datasetTemplate class="rRNAExperiment">
+  <!-- To rerun while reusing previous results, undo up to here and manually drop files into all_results -->
+  <step name="beginMicrobiomeStudies" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::DoNothingStep">
+    <depends name="makeResultsDir"/>
+  </step>
+
+  <datasetTemplate class="MicrobiomeStudy">
     <prop name="name"/>
+    <prop name="version"/>
+    <prop name="runDADA2"/>
+    <prop name="runHumann"/>
     <prop name="version"/>
     <prop name="samplesInfoFile"/>
     <prop name="isPaired"/>
@@ -58,21 +67,36 @@
     <prop name="platform"/>
     <prop name="sraStudyId"/>
     <prop name="mergeTechReps"/>
+    <prop name="sampleToWgsFastqFileName"/>
 
-    <subgraph name="rRNAExperiment_${name}_copyManualDeliveryFiles" xmlFile="loadDataset.xml">
+    <subgraph name="MicrobiomeStudy_${name}_copyManualDeliveryFiles" xmlFile="loadDataset.xml">
+      <paramValue name="parentDataDir"></paramValue>
       <paramValue name="datasetName">otuDADA2_${name}_RSRC</paramValue>
       <paramValue name="datasetLoaderXmlFileName">${projectName}.xml</paramValue>
-      <paramValue name="parentDataDir"></paramValue>
-      <depends name="beginRRNAExperiments"/>
+      <paramValue name="runDADA2">${runDADA2}</paramValue>
+      <paramValue name="runHumann">${runHumann}</paramValue>
+      <depends name="beginMicrobiomeStudies"/>
     </subgraph>
 
-    <subgraph name="rRNAExperiment_${name}" xmlFile="runDADA2OnCluster.xml">
+
+    <subgraph name="MicrobiomeStudy_${name}_Humann" xmlFile="runHumannOnCluster.xml" includeIf="${runHumann}" skipIfFile="all_results/${name}.wgs.lineage_abundance.tsv">
+      <paramValue name="sampleToFastqFileName">${sampleToWgsFastqFileName}</paramValue>
+      <paramValue name="analysisDir">otuDADA2_${name}_RSRC/Humann_${name}</paramValue>
+      <paramValue name="resultDir">all_results</paramValue>
+      <paramValue name="otuCountsFileName">${name}.wgs.lineage_abundance.tsv</paramValue>
+      <paramValue name="pathwayAbundancesFileName">${name}.pathway_abundance.tsv</paramValue>
+      <paramValue name="pathwayCoveragesFileName">${name}.pathway_coverage.tsv</paramValue>
+      <paramValue name="level4ECsFileName">${name}.level4ec.tsv</paramValue>
+      <depends name="MicrobiomeStudy_${name}_copyManualDeliveryFiles"/>
+    </subgraph>
+
+    <subgraph name="MicrobiomeStudy_${name}_DADA2" xmlFile="runDADA2OnCluster.xml" includeIf="${runDADA2}" skipIfFile="all_results/${name}.16s.lineage_abundance.tsv">
       <paramValue name="projectName">$$projectName$$</paramValue>
-      <paramValue name="datasetName">otuDADA2_${name}_RSRC</paramValue>
+      <paramValue name="analysisDir">otuDADA2_${name}_RSRC/DADA2_${name}</paramValue>
       <paramValue name="trainingSetPath">rRNAReference_RSRC/trainingSet.fa.gz</paramValue>
       <paramValue name="speciesAssignmentPath">rRNAReference_RSRC/speciesAssignment.fa.gz</paramValue>
       <paramValue name="resultDir">all_results</paramValue>
-      <paramValue name="resultFileName">${name}.lineage_abundance.tsv</paramValue>
+      <paramValue name="otuCountsFileName">${name}.16s.lineage_abundance.tsv</paramValue>
       <paramValue name="version">${version}</paramValue>
       <paramValue name="samplesInfoFile">${samplesInfoFile}</paramValue>
       <paramValue name="isPaired">${isPaired}</paramValue>
@@ -84,30 +108,36 @@
       <paramValue name="platform">${platform}</paramValue>
       <paramValue name="sraStudyId">${sraStudyId}</paramValue>
       <paramValue name="mergeTechReps">${mergeTechReps}</paramValue>
-      <depends name="rRNAExperiment_${name}_copyManualDeliveryFiles"/>
+      <depends name="MicrobiomeStudy_${name}_copyManualDeliveryFiles"/>
     </subgraph>
 
-    <step name="insertOtuAbundances_${name}" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::InsertLineageAbundances">
-      <paramValue name="inputPath">all_results/${name}.lineage_abundance.tsv</paramValue>
+    <step name="insertMBioResults_${name}" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::InsertMBioResults" stepLoadTypes="insertResults">
       <paramValue name="datasetName">otuDADA2_${name}_RSRC</paramValue>
-      <depends name="rRNAExperiment_${name}"/>
+      <paramValue name="insertAmplicon">${runDADA2}</paramValue>
+      <paramValue name="insertWGS">${runHumann}</paramValue>
+      <paramValue name="ampliconTaxaPath">all_results/${name}.16s.lineage_abundance.tsv</paramValue>
+      <paramValue name="wgsTaxaPath">all_results/${name}.wgs.lineage_abundance.tsv</paramValue>
+      <paramValue name="pathwayAbundancesPath">all_results/${name}.pathway_abundance.tsv</paramValue>
+      <paramValue name="pathwayCoveragesPath">all_results/${name}.pathway_coverage.tsv</paramValue>
+      <paramValue name="level4ECsPath">all_results/${name}.level4ec.tsv</paramValue>
+      <depends name="MicrobiomeStudy_${name}_Humann"/>
+      <depends name="MicrobiomeStudy_${name}_DADA2"/>
       <dependsGlobal name="taxonomy"/> <!-- study.ProtocolAppNode references sres.OntologyTerm to know the ontology term for "data item"-->
     </step>
-
   </datasetTemplate>
-
+ 
   <subgraph name="crossStudyCard" xmlFile="loadDataset.xml">
     <paramValue name="datasetName">CrossStudy_RSRC</paramValue>
     <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
     <paramValue name="parentDataDir"></paramValue>
-    <dependsPattern name="insertOtuAbundances_*"/>
+    <dependsPattern name="insertMBioResults_*"/>
   </subgraph>
 
    <subgraph name="createLineageTaxonLinkingTable" xmlFile="loadDataset.xml">
     <paramValue name="datasetName">LineageTaxonLinkingTable_RSRC</paramValue>
     <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
     <paramValue name="parentDataDir"></paramValue>
-    <dependsPattern name="insertOtuAbundances_*"/>
+    <dependsPattern name="insertMBioResults_*"/>
     <dependsGlobal name="taxonomy"/>
    </subgraph>
 
@@ -115,7 +145,7 @@
     <paramValue name="datasetName">ISASimple_RSRC</paramValue>
     <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
     <paramValue name="parentDataDir"></paramValue>
-    <dependsPattern name="insertOtuAbundances_*"/>
+    <dependsPattern name="insertMBioResults_*"/>
     <depends name="crossStudyCard"/>
     <dependsGlobal name="eupathCuratedOntologies"/>
   </subgraph>
@@ -126,7 +156,7 @@
     <paramValue name="tables">Samples,InferredParams,PANExtDbRls,Ontology,Metadata,TaxonAbundance,TaxonRelativeAbundance,EupathBuildDates,ExternalDbDatasetPresenter</paramValue>
     <paramValue name="organismAbbrev"></paramValue>
       <depends name="ISASimpleMicrobiome"/>
-      <dependsPattern name="insertOtuAbundances_*"/>
+      <dependsPattern name="insertMBioResults_*"/>
       <depends name="crossStudyCard"/>
       <depends name="createLineageTaxonLinkingTable"/>
   </step>

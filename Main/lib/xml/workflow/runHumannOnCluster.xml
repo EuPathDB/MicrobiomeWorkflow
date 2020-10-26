@@ -23,7 +23,7 @@
     <paramValue name="workingDir">$$analysisDir$$</paramValue>
     <paramValue name="resultsDir">$$analysisDir$$/results</paramValue>
     <paramValue name="nextflowConfigFile">$$analysisDir$$/nextflow.config</paramValue>
-    <paramValue name="nextflowWorkflow">wbazant/humann-nextflow</paramValue>
+    <paramValue name="nextflowWorkflow">VEuPathDB/humann-nextflow</paramValue>
     <paramValue name="isGitRepo">true</paramValue>    
     <depends name="mirrorToCluster"/>
   </step>

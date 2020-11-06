@@ -148,6 +148,7 @@
     <dependsPattern name="insertMBioResults_*"/>
     <depends name="crossStudyCard"/>
     <dependsGlobal name="eupathCuratedOntologies"/>
+    <dependsGlobal name="taxonomy"/> <!-- Taxonomy is an ontology, used for IDs of the form NCBITaxon_ when data loading -->
   </subgraph>
 
   <!-- Should happen after all the analyses are done, and all the metadata has been inserted -->

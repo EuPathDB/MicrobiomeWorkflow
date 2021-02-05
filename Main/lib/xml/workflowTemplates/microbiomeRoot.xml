@@ -168,15 +168,23 @@
 
   <step name="makeDownloadFiles"
         stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::MakeDownloadFiles">
-    <paramValue name="outputFileBaseName">downloadSite</paramValue>
+    <paramValue name="allResultsDir">all_results</paramValue>
+    <paramValue name="outputDir">downloadSiteFiles</paramValue>
+    <paramValue name="allDatasetsFileName">datasets.txt</paramValue>
+    <paramValue name="ampliconTaxaSuffix">.16s.lineage_abundance.tsv</paramValue>
+    <paramValue name="wgsTaxaSuffix">.wgs.lineage_abundance.tsv</paramValue>
+    <paramValue name="level4ECsSuffix">.level4ec.tsv</paramValue>
+    <paramValue name="pathwayAbundancesSuffix">.pathway_abundance.tsv</paramValue>
+    <paramValue name="pathwayCoveragesSuffix">.pathway_coverage.tsv</paramValue>
     <depends name="makeDownloadFileDir"/>
     <depends name="tuningManager"/>
   </step>
 
   <step name="copyDownloadFiles" 
           stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::CopyDownloadFiles">
-    <paramValue name="inputFileBaseName">downloadSite</paramValue>
-    <paramValue name="relativeDownloadSiteDir">$$relativeDownloadSiteDir$$</paramValue>
+    <paramValue name="sourceDir">downloadSiteFiles</paramValue>
+    <paramValue name="allDatasetsFileName">datasets.txt</paramValue>
+    <paramValue name="targetDir">$$relativeDownloadSiteDir$$</paramValue>
     <depends name="makeDownloadFiles"/>
     <depends name="makeProjectReleaseDownloadDir"/>
   </step>

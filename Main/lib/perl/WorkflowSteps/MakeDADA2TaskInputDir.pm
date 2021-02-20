@@ -16,17 +16,18 @@ sub run {
   my $speciesAssignmentPath = $self->getParamValue("speciesAssignmentPath");
   my $resultPath = $self->getParamValue("resultPath");
   my $keepNode = $self->getParamValue("keepNode");
-  my $samplesInfoFile = $self->getParamValue("samplesInfoFile");
+  my $samplesInfoFileName = $self->getParamValue("samplesInfoFileName");
   my $samplesInfoDir = $self->getParamValue("samplesInfoDir");
   my $isPaired = $self->getParamValue("isPaired");
   my $trimLeft = $self->getParamValue("trimLeft");
   my $trimLeftR = $self->getParamValue("trimLeftR");
   my $truncLen = $self->getParamValue("truncLen");
   my $truncLenR = $self->getParamValue("truncLenR");
-  my $readLen = $self->getParamValue("readLen");
+  my $maxLen = $self->getParamValue("maxLen");
   my $platform = $self->getParamValue("platform");
   my $fastqsDir = $self->getParamValue("fastqsDir");
   my $sraStudyId = $self->getParamValue("sraStudyId");
+  my $sraSampleAndRunIdsFileName = $self->getParamValue("sraSampleAndRunIdsFileName");
   my $mergeTechReps = $self->getBooleanParamValue("mergeTechReps");
   my $taskSize = 1;
 
@@ -52,11 +53,18 @@ speciesAssignmentFile=$clusterWorkflowDataDir/$speciesAssignmentPath
 resultFile=$clusterWorkflowDataDir/$resultPath
 ";
 
-      if ($samplesInfoFile){
-        if ( -f "$workflowDataDir/$samplesInfoDir/$samplesInfoFile") {
-          $taskPropFileContent .= "samplesInfoFile=$clusterWorkflowDataDir/$samplesInfoDir/$samplesInfoFile\n";
+      if ($samplesInfoFileName){
+        if ( -f "$workflowDataDir/$samplesInfoDir/$samplesInfoFileName") {
+          $taskPropFileContent .= "samplesInfoFileName=$clusterWorkflowDataDir/$samplesInfoDir/$samplesInfoFileName\n";
         } else {
-        die "Samples info file $samplesInfoFile specified, but not found at $workflowDataDir/$samplesInfoDir/$samplesInfoFile";
+        die "Samples info file $samplesInfoFileName specified, but not found at $workflowDataDir/$samplesInfoDir/$samplesInfoFileName";
+        }
+      }
+      if ($sraSampleAndRunIdsFileName){
+        if ( -f "$workflowDataDir/$samplesInfoDir/$sraSampleAndRunIdsFileName") {
+          $taskPropFileContent .= "sraSampleAndRunIdsPath=$clusterWorkflowDataDir/$samplesInfoDir/$sraSampleAndRunIdsFileName\n";
+        } else {
+        die "sraSampleAndRunIdsFileName file $sraSampleAndRunIdsFileName specified, but not found at $workflowDataDir/$samplesInfoDir/$sraSampleAndRunIdsFileName";
         }
       }
       if ( glob("$workflowDataDir/$fastqsDir/*") ){
@@ -87,8 +95,8 @@ resultFile=$clusterWorkflowDataDir/$resultPath
       if ($truncLenR) {
         $taskPropFileContent .= "truncLenR=$truncLenR\n";
       }
-      if ($readLen) {
-        $taskPropFileContent .= "readLen=$readLen\n";
+      if ($maxLen) {
+        $taskPropFileContent .= "maxLen=$maxLen\n";
       }
       if ($platform) {
         $taskPropFileContent .= "platform=$platform\n";

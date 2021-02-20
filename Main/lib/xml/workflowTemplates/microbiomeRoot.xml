@@ -57,17 +57,18 @@
     <prop name="runDADA2"/>
     <prop name="runHumann"/>
     <prop name="version"/>
-    <prop name="samplesInfoFile"/>
+    <prop name="samplesInfoFileName"/>
     <prop name="isPaired"/>
     <prop name="trimLeft"/>
     <prop name="trimLeftR"/>
     <prop name="truncLen"/>
     <prop name="truncLenR"/>
-    <prop name="readLen"/>
+    <prop name="maxLen"/>
     <prop name="platform"/>
     <prop name="sraStudyId"/>
     <prop name="mergeTechReps"/>
     <prop name="sampleToWgsFastqFileName"/>
+    <prop name="sraSampleAndRunIdsFileName"/>
 
     <subgraph name="MicrobiomeStudy_${name}_copyManualDeliveryFiles" xmlFile="loadDataset.xml">
       <paramValue name="parentDataDir"></paramValue>
@@ -98,15 +99,16 @@
       <paramValue name="resultDir">all_results</paramValue>
       <paramValue name="otuCountsFileName">${name}.16s.lineage_abundance.tsv</paramValue>
       <paramValue name="version">${version}</paramValue>
-      <paramValue name="samplesInfoFile">${samplesInfoFile}</paramValue>
+      <paramValue name="samplesInfoFileName">${samplesInfoFileName}</paramValue>
       <paramValue name="isPaired">${isPaired}</paramValue>
       <paramValue name="trimLeft">${trimLeft}</paramValue>
       <paramValue name="trimLeftR">${trimLeftR}</paramValue>
       <paramValue name="truncLen">${truncLen}</paramValue>
       <paramValue name="truncLenR">${truncLenR}</paramValue>
-      <paramValue name="readLen">${readLen}</paramValue>
+      <paramValue name="maxLen">${maxLen}</paramValue>
       <paramValue name="platform">${platform}</paramValue>
       <paramValue name="sraStudyId">${sraStudyId}</paramValue>
+      <paramValue name="sraSampleAndRunIdsFileName">${sraSampleAndRunIdsFileName}</paramValue>
       <paramValue name="mergeTechReps">${mergeTechReps}</paramValue>
       <depends name="MicrobiomeStudy_${name}_copyManualDeliveryFiles"/>
     </subgraph>

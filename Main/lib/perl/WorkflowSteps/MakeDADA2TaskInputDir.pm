@@ -60,19 +60,18 @@ resultFile=$clusterWorkflowDataDir/$resultPath
         die "Samples info file $samplesInfoFileName specified, but not found at $workflowDataDir/$samplesInfoDir/$samplesInfoFileName";
         }
       }
-      if ($sraSampleAndRunIdsFileName){
+      if ( glob("$workflowDataDir/$fastqsDir/*") ){
+        $taskPropFileContent .= "dataDir=$clusterWorkflowDataDir/$fastqsDir\n";
+      } elsif ($sraStudyId) {
+        $taskPropFileContent .= "sraStudyId=$sraStudyId\n";
+      } elsif ($sraSampleAndRunIdsFileName){
         if ( -f "$workflowDataDir/$samplesInfoDir/$sraSampleAndRunIdsFileName") {
           $taskPropFileContent .= "sraSampleAndRunIdsPath=$clusterWorkflowDataDir/$samplesInfoDir/$sraSampleAndRunIdsFileName\n";
         } else {
         die "sraSampleAndRunIdsFileName file $sraSampleAndRunIdsFileName specified, but not found at $workflowDataDir/$samplesInfoDir/$sraSampleAndRunIdsFileName";
         }
-      }
-      if ( glob("$workflowDataDir/$fastqsDir/*") ){
-        $taskPropFileContent .= "dataDir=$clusterWorkflowDataDir/$fastqsDir\n";
-      } elsif ($sraStudyId) {
-        $taskPropFileContent .= "sraStudyId=$sraStudyId\n";
       } else {
-        die "Fastqs from manual delivery not at $workflowDataDir/$fastqsDir, and no sraStudyId specified";
+        die "Fastqs from manual delivery not at $workflowDataDir/$fastqsDir, and no sraStudyId or sraSampleAndRunIdsFileName specified";
       }
 
       if ($mergeTechReps) {

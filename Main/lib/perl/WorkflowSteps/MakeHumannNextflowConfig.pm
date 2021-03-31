@@ -36,7 +36,7 @@ sub run {
   resultDir = '$clusterResultDir'
   kneaddataCommand = \"kneaddata --trimmomatic ~/lib/Trimmomatic-0.39 --max-memory 3000m --bypass-trf --reference-db ~/kneaddata_databases\"
   wgetCommand = \"wget --waitretry=10 --read-timeout=20 --retry-connrefused --tries 3\"
-  humannCommand = \"humann --diamond-options \\\" --block-size 0.8 --top 1 --outfmt 6\\\"
+  humannCommand = \"humann --diamond-options \\\" --block-size 0.8 --top 1 --outfmt 6\\\"\"
   functionalUnits = [\"level4ec\"]
 }
 
@@ -46,7 +46,6 @@ process {
   maxForks = 40
   withLabel: 'download_and_preprocess' {
     errorStrategy {
-      sleep(Math.pow(2, task.attempt) * 500 as long);
       if (task.exitStatus == 8 || task.attempt < 4 ) {
         return 'retry'
       } else {

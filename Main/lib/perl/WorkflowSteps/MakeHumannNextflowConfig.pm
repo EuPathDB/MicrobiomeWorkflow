@@ -45,7 +45,7 @@ process {
   queue = '$queue'
   maxForks = 40
   withLabel: 'download_and_preprocess' {
-    errorStrategy {
+    errorStrategy = {
       if (task.exitStatus == 8 || task.attempt < 4 ) {
         return 'retry'
       } else {

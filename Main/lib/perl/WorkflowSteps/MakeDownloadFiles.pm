@@ -5,7 +5,7 @@ package MicrobiomeWorkflow::Main::WorkflowSteps::MakeDownloadFiles;
 use strict;
 use warnings;
 use ApiCommonWorkflow::Main::WorkflowSteps::WorkflowStep;
-use ApiCommonData::Load::MBioResultsTable;
+use ApiCommonData::Load::MBioResultsTable::AsText;
 
 
 use GUS::ObjRelP::DbiDatabase;
@@ -46,16 +46,16 @@ sub run {
       my $pathwayCoveragesPath = "$allResultsDir/${dataset}${pathwayCoveragesSuffix}";
       my ($ampliconTaxaTable, $wgsTaxaTable, $level4ECsTable, $pathwaysTable);
       if (-f $ampliconTaxaPath){
-        $ampliconTaxaTable = ApiCommonData::Load::MBioResultsTable->ampliconTaxa($ampliconTaxaPath);
+        $ampliconTaxaTable = ApiCommonData::Load::MBioResultsTable::AsText->ampliconTaxa($ampliconTaxaPath);
         $ampliconTaxaTable->addSampleDetails($sampleDetailsByDataset->{$dataset});
         $ampliconTaxaTable->writeTabSampleDetails("$outputDir/$dataset.16s_DADA2.sample_details.tsv");
         $ampliconTaxaTable->writeBiom("$outputDir/$dataset.16s_DADA2.taxon_abundance.biom");
         $ampliconTaxaTable->writeTabData("$outputDir/$dataset.16s_DADA2.taxon_abundance.tsv");
       }
       if (-f $wgsTaxaPath){
-        $wgsTaxaTable = ApiCommonData::Load::MBioResultsTable->wgsTaxa($wgsTaxaPath);
-        $level4ECsTable = ApiCommonData::Load::MBioResultsTable->wgsFunctions("level4EC", $level4ECsPath);
-        $pathwaysTable = ApiCommonData::Load::MBioResultsTable->wgsPathways($pathwayAbundancesPath, $pathwayCoveragesPath);
+        $wgsTaxaTable = ApiCommonData::Load::MBioResultsTable::AsText->wgsTaxa($wgsTaxaPath);
+        $level4ECsTable = ApiCommonData::Load::MBioResultsTable::AsText->wgsFunctions("level4EC", $level4ECsPath);
+        $pathwaysTable = ApiCommonData::Load::MBioResultsTable::AsText->wgsPathways($pathwayAbundancesPath, $pathwayCoveragesPath);
 
         $wgsTaxaTable->addSampleDetails($sampleDetailsByDataset->{$dataset});
         $level4ECsTable->addSampleDetails($sampleDetailsByDataset->{$dataset});

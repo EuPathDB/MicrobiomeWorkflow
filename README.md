@@ -45,3 +45,24 @@ bsub -e controller.e -o controller.o nextflow run VEuPathDB/humann-nextflow -wit
 humann
 ~/kneaddata_databases
 ~/lib/Trimmomatic-0.39
+
+
+## Sample detail files
+
+### summary of a file
+```
+cd $PROJECT_HOME/ApiCommonMetadataRepository
+
+./scripts/summarise_ISA.pl ./ISA/metadata/MBSTDY0020/DIABIMMUNE_WGS.txt ./ISA/config/ontologyMappingsMicrobiome.xml 
+```
+These are very useful for making changes, you can diff them before and after the change.
+
+### test file
+```
+cd $PROJECT_HOME/ApiCommonMetadataRepository
+
+SPARQLPATH=scripts/lib/ApiCommonData/Load/lib/SPARQL/ perl ./scripts/microbiomedb.t 
+```
+The test is useful for enforcing our SOPs about what sample details should be present as a minimum.
+
+We don't actually follow the SOPs completely, but they're helpful anyway. The test also fails if the mapping isn't complete.

@@ -15,6 +15,7 @@ sub run {
 
   
   my $ampliconTaxaSuffix = $self->getParamValue('ampliconTaxaSuffix');
+  my $eukdetectCpmsSuffix = $self->getParamValue('eukdetectCpmsSuffix');
   my $wgsTaxaSuffix = $self->getParamValue('wgsTaxaSuffix');
   my $level4ECsSuffix = $self->getParamValue('level4ECsSuffix');
   my $pathwayAbundancesSuffix = $self->getParamValue('pathwayAbundancesSuffix');
@@ -40,6 +41,7 @@ sub run {
     my $sampleDetailsByDataset = $self->writeSampleDetailsAndReadThemBack($test, $outFileSampleDetails); 
     for my $dataset (@{$datasets}){
       my $ampliconTaxaPath = "$allResultsDir/${dataset}${ampliconTaxaSuffix}";
+      my $eukdetectCpmsPath = "$allResultsDir/${dataset}${eukdetectCpmsSuffix}";
       my $wgsTaxaPath = "$allResultsDir/${dataset}${wgsTaxaSuffix}";
       my $level4ECsPath = "$allResultsDir/${dataset}${level4ECsSuffix}";
       my $pathwayAbundancesPath = "$allResultsDir/${dataset}${pathwayAbundancesSuffix}";
@@ -51,6 +53,13 @@ sub run {
         $ampliconTaxaTable->writeTabSampleDetails("$outputDir/$dataset.16s_DADA2.sample_details.tsv");
         $ampliconTaxaTable->writeBiom("$outputDir/$dataset.16s_DADA2.taxon_abundance.biom");
         $ampliconTaxaTable->writeTabData("$outputDir/$dataset.16s_DADA2.taxon_abundance.tsv");
+      }
+      if (-f $eukdetectCpmsPath){
+        $eukdetectCpmsTable = ApiCommonData::Load::MBioResultsTable::AsText->eukdetectCpms($eukdetectCpmsPath);
+        $eukdetectCpmsTable->addSampleDetails($sampleDetailsByDataset->{$dataset});
+        $eukdetectCpmsTable->writeTabSampleDetails("$outputDir/$dataset.eukaryotic_marker_alignments.sample_details.tsv");
+        $eukdetectCpmsTable->writeBiom("$outputDir/$dataset.eukaryotic_marker_alignments.taxon_cpms.biom");
+        $eukdetectCpmsTable->writeTabData("$outputDir/$dataset.eukaryotic_marker_alignments.taxon_cpms.tsv");
       }
       if (-f $wgsTaxaPath){
         $wgsTaxaTable = ApiCommonData::Load::MBioResultsTable::AsText->wgsTaxa($wgsTaxaPath);

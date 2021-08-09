@@ -105,13 +105,13 @@
       <depends name="MicrobiomeStudy_${name}_copyManualDeliveryFiles"/>
     </subgraph>
 
-    <subgraph name="MicrobiomeStudy_${name}_Eukdetect" xmlFile="runEukdetectOnCluster.xml" includeIf="${runWGS}" skipIfFile="all_results/${name}.eukdetect.taxa.cpm.tsv">
+    <subgraph name="MicrobiomeStudy_${name}_Eukdetect" xmlFile="runEukdetectOnCluster.xml" includeIf="${runWGS}" skipIfFile="all_results/${name}.eukdetect.lineage_abundance.tsv">
       <paramValue name="sampleToFastqFileName">${sampleToWgsFastqFileName}</paramValue>
       <paramValue name="analysisDir">otuDADA2_${name}_RSRC/Eukdetect_${name}</paramValue>
       <paramValue name="resultDir">all_results</paramValue>
       <paramValue name="unpackMethod">$$unpackMethod$$</paramValue>
       <paramValue name="downloadMethod">$$downloadMethod$$</paramValue>
-      <paramValue name="resultFileName">${name}.eukdetect.taxa.cpm.tsv</paramValue>
+      <paramValue name="resultFileName">${name}.eukdetect.lineage_abundance.tsv</paramValue>
       <paramValue name="eukdetectRefdbPath">EukMarkersReference_RSRC/refdb</paramValue>
       <paramValue name="eukdetectMarkerToTaxonPath">EukMarkersReference_RSRC/marker-to-taxon-id.tsv</paramValue>
       <depends name="MicrobiomeStudy_${name}_copyManualDeliveryFiles"/>
@@ -203,6 +203,7 @@
     <paramValue name="outputDir">downloadSiteFiles</paramValue>
     <paramValue name="allDatasetsFileName">datasets.txt</paramValue>
     <paramValue name="ampliconTaxaSuffix">.16s.lineage_abundance.tsv</paramValue>
+    <paramValue name="eukdetectCpmsSuffix">.eukdetect.lineage_abundance.tsv</paramValue>
     <paramValue name="wgsTaxaSuffix">.wgs.lineage_abundance.tsv</paramValue>
     <paramValue name="level4ECsSuffix">.level4ec.tsv</paramValue>
     <paramValue name="pathwayAbundancesSuffix">.pathway_abundance.tsv</paramValue>

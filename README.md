@@ -30,6 +30,13 @@ workflow -h `pwd` -r -u microbiomeGlobal.eupathCuratedOntologies
 workflow -h `pwd` -r -u ISASimpleMicrobiome
 ```
 
+### Workflow dev - add new params to MicrobiomeStudy class, etc.
+This is kind of necessary:
+```
+workflow -h `pwd` -r -u beginMicrobiomeStudies
+```
+When you redo it will skip based on files instead of resubmitting, which is very good.
+
 ## PMACS cluster
 ### Humann
 ```

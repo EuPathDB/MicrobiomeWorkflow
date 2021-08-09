@@ -36,9 +36,21 @@
     <paramValue name="parentDataDir"></paramValue>
   </subgraph>
 
+  <subgraph name="EukMarkersReference" xmlFile="loadDataset.xml">
+    <paramValue name="datasetName">EukMarkersReference_RSRC</paramValue>
+    <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
+    <paramValue name="parentDataDir"></paramValue>
+  </subgraph>
+
   <step name="mirrorDADA2TaxonomyToCluster" stepClass="ReFlow::StepClasses::MirrorToComputeCluster" stepLoadTypes="toCluster">
     <paramValue name="fileOrDirToMirror">rRNAReference_RSRC</paramValue>
     <depends name="rRNAReference"/>
+    <dependsGlobal name="initClusterHomeDir"/>
+  </step>
+
+  <step name="mirrorEukMarkersReferenceToCluster" stepClass="ReFlow::StepClasses::MirrorToComputeCluster" stepLoadTypes="toCluster">
+    <paramValue name="fileOrDirToMirror">EukMarkersReference_RSRC</paramValue>
+    <depends name="EukMarkersReference"/>
     <dependsGlobal name="initClusterHomeDir"/>
   </step>
 
@@ -55,7 +67,9 @@
     <prop name="name"/>
     <prop name="version"/>
     <prop name="runDADA2"/>
-    <prop name="runHumann"/>
+    <prop name="runWGS"/>
+    <prop name="unpackMethod"/>
+    <prop name="downloadMethod"/>
     <prop name="version"/>
     <prop name="samplesInfoFileName"/>
     <prop name="isPaired"/>
@@ -75,12 +89,12 @@
       <paramValue name="datasetName">otuDADA2_${name}_RSRC</paramValue>
       <paramValue name="datasetLoaderXmlFileName">${projectName}.xml</paramValue>
       <paramValue name="runDADA2">${runDADA2}</paramValue>
-      <paramValue name="runHumann">${runHumann}</paramValue>
+      <paramValue name="runWGS">${runWGS}</paramValue>
       <depends name="beginMicrobiomeStudies"/>
     </subgraph>
 
 
-    <subgraph name="MicrobiomeStudy_${name}_Humann" xmlFile="runHumannOnCluster.xml" includeIf="${runHumann}" skipIfFile="all_results/${name}.wgs.lineage_abundance.tsv">
+    <subgraph name="MicrobiomeStudy_${name}_Humann" xmlFile="runWGSOnCluster.xml" includeIf="${runWGS}" skipIfFile="all_results/${name}.wgs.lineage_abundance.tsv">
       <paramValue name="sampleToFastqFileName">${sampleToWgsFastqFileName}</paramValue>
       <paramValue name="analysisDir">otuDADA2_${name}_RSRC/Humann_${name}</paramValue>
       <paramValue name="resultDir">all_results</paramValue>
@@ -89,6 +103,20 @@
       <paramValue name="pathwayCoveragesFileName">${name}.pathway_coverage.tsv</paramValue>
       <paramValue name="level4ECsFileName">${name}.level4ec.tsv</paramValue>
       <depends name="MicrobiomeStudy_${name}_copyManualDeliveryFiles"/>
+    </subgraph>
+
+    <subgraph name="MicrobiomeStudy_${name}_Eukdetect" xmlFile="runEukdetectOnCluster.xml" includeIf="${runWGS}" skipIfFile="all_results/${name}.eukdetect.taxa.cpm.tsv">
+      <paramValue name="sampleToFastqFileName">${sampleToWgsFastqFileName}</paramValue>
+      <paramValue name="analysisDir">otuDADA2_${name}_RSRC/Eukdetect_${name}</paramValue>
+      <paramValue name="resultDir">all_results</paramValue>
+      <paramValue name="unpackMethod">$$unpackMethod$$</paramValue>
+      <paramValue name="downloadMethod">$$downloadMethod$$</paramValue>
+      <paramValue name="resultFileName">${name}.eukdetect.taxa.cpm.tsv</paramValue>
+      <paramValue name="eukdetectRefdbPath">EukMarkersReference_RSRC/refdb</paramValue>
+      <paramValue name="eukdetectMarkerToTaxonPath">EukMarkersReference_RSRC/marker-to-taxon-id.tsv</paramValue>
+      <depends name="MicrobiomeStudy_${name}_copyManualDeliveryFiles"/>
+      <depends name="mirrorEukMarkersReferenceToCluster"/>
+      <dependsGlobal name="taxonomy"/> <!-- converts taxids into lineages -->
     </subgraph>
 
     <subgraph name="MicrobiomeStudy_${name}_DADA2" xmlFile="runDADA2OnCluster.xml" includeIf="${runDADA2}" skipIfFile="all_results/${name}.16s.lineage_abundance.tsv">
@@ -111,12 +139,13 @@
       <paramValue name="sraSampleAndRunIdsFileName">${sraSampleAndRunIdsFileName}</paramValue>
       <paramValue name="mergeTechReps">${mergeTechReps}</paramValue>
       <depends name="MicrobiomeStudy_${name}_copyManualDeliveryFiles"/>
+      <!-- Also depends on mirrorDADA2TaxonomyToCluster, I think I've forgotten to add it-->
     </subgraph>
 
     <step name="insertMBioResults_${name}" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::InsertMBioResults" stepLoadTypes="insertResults">
       <paramValue name="datasetName">otuDADA2_${name}_RSRC</paramValue>
       <paramValue name="insertAmplicon">${runDADA2}</paramValue>
-      <paramValue name="insertWGS">${runHumann}</paramValue>
+      <paramValue name="insertWGS">${runWGS}</paramValue>
       <paramValue name="ampliconTaxaPath">all_results/${name}.16s.lineage_abundance.tsv</paramValue>
       <paramValue name="wgsTaxaPath">all_results/${name}.wgs.lineage_abundance.tsv</paramValue>
       <paramValue name="pathwayAbundancesPath">all_results/${name}.pathway_abundance.tsv</paramValue>

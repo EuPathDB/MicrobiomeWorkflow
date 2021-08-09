@@ -1,0 +1,52 @@
+<workflowGraph name="runEukdetectOnCluster">
+  <param name="sampleToFastqFileName"/>
+  <param name="isPaired"/>
+  <param name="unpackMethod"/>
+  <param name="downloadMethod"/>
+  <param name="analysisDir"/>
+  <param name="resultDir"/>
+  <param name="resultFileName"/>
+  <param name="eukdetectRefdbPath"/>
+  <param name="eukdetectMarkerToTaxonPath"/>
+
+  <step name="makeEukdetectNextflowConfig" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::MakeEukdetectNextflowConfig">
+    <paramValue name="analysisDir">$$analysisDir$$</paramValue>
+    <paramValue name="isPaired">$$isPaired$$</paramValue>
+    <paramValue name="unpackMethod">$$unpackMethod$$</paramValue>
+    <paramValue name="downloadMethod">$$downloadMethod$$</paramValue>
+    <paramValue name="sampleToFastqFileName">$$sampleToFastqFileName$$</paramValue>
+    <paramValue name="clusterResultDir">$$analysisDir$$/results</paramValue>
+    <paramValue name="eukdetectRefdbPath">$$eukdetectRefdbPath$$</paramValue>
+    <paramValue name="eukdetectMarkerToTaxonPath">$$eukdetectMarkerToTaxonPath$$</paramValue>
+    <paramValue name="configFileName">nextflow.config</paramValue>
+  </step>
+
+  <step name="mirrorPropsAndSupplementaryDataToCluster" stepClass="MicrobiomeWorkflow::Main::MirrorToComputeCluster" stepLoadTypes="toCluster">
+    <paramValue name="fileOrDirToMirror">$$analysisDir$$</paramValue>
+    <depends name="makeEukdetectNextflowConfig"/>
+  </step>
+
+  <step name="runClusterTask" stepClass="ReFlow::StepClasses::RunAndMonitorNextflow">
+    <paramValue name="workingDir">$$analysisDir$$</paramValue>
+    <paramValue name="resultsDir">$$analysisDir$$/results</paramValue>
+    <paramValue name="nextflowConfigFile">$$analysisDir$$/nextflow.config</paramValue>
+    <paramValue name="nextflowWorkflow">wbazant/marker-alignments-nextflow -r main</paramValue>
+    <paramValue name="isGitRepo">true</paramValue>    
+    <depends name="mirrorToCluster"/>
+  </step>
+
+  <step name="mirrorResultsFromCluster" stepClass="ReFlow::StepClasses::MirrorFromComputeCluster" stepLoadTypes="fromCluster">
+    <paramValue name="fileOrDirToMirror">$$analysisDir$$/results/cpms.tsv</paramValue>
+    <paramValue name="outputDir">$$analysisDir$$</paramValue>
+    <paramValue name="outputFiles">cpms.tsv</paramValue>
+    <paramValue name="deleteAfterCopy">false</paramValue>
+    <depends name="runClusterTask"/>
+  </step>
+
+  <step name="decorateEukdetectResultsWithTaxa" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::DecorateEukdetectResultsWithTaxa">
+    <paramValue name="inputPath">$$analysisDir$$/cpms.tsv</paramValue>
+    <paramValue name="outputPath">$$resultsDir$$/$$resultFileName$$</paramValue>
+  <depends name="mirrorResultsFromCluster"/>
+  </step>
+
+</workflowGraph>

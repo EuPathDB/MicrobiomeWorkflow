@@ -94,7 +94,7 @@
     </subgraph>
 
 
-    <subgraph name="MicrobiomeStudy_${name}_Humann" xmlFile="runWGSOnCluster.xml" includeIf="${runWGS}" skipIfFile="all_results/${name}.wgs.lineage_abundance.tsv">
+    <subgraph name="MicrobiomeStudy_${name}_Humann" xmlFile="runHumannOnCluster.xml" includeIf="${runWGS}" skipIfFile="all_results/${name}.wgs.lineage_abundance.tsv">
       <paramValue name="sampleToFastqFileName">${sampleToWgsFastqFileName}</paramValue>
       <paramValue name="analysisDir">otuDADA2_${name}_RSRC/Humann_${name}</paramValue>
       <paramValue name="resultDir">all_results</paramValue>
@@ -109,8 +109,9 @@
       <paramValue name="sampleToFastqFileName">${sampleToWgsFastqFileName}</paramValue>
       <paramValue name="analysisDir">otuDADA2_${name}_RSRC/Eukdetect_${name}</paramValue>
       <paramValue name="resultDir">all_results</paramValue>
-      <paramValue name="unpackMethod">$$unpackMethod$$</paramValue>
-      <paramValue name="downloadMethod">$$downloadMethod$$</paramValue>
+      <paramValue name="isPaired">${isPaired}</paramValue>
+      <paramValue name="unpackMethod">${unpackMethod}</paramValue>
+      <paramValue name="downloadMethod">${downloadMethod}</paramValue>
       <paramValue name="resultFileName">${name}.eukdetect.lineage_abundance.tsv</paramValue>
       <paramValue name="eukdetectRefdbPath">EukMarkersReference_RSRC/refdb</paramValue>
       <paramValue name="eukdetectMarkerToTaxonPath">EukMarkersReference_RSRC/marker-to-taxon-id.tsv</paramValue>

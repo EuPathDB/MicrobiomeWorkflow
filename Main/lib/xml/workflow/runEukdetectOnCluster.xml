@@ -32,7 +32,7 @@
     <paramValue name="nextflowConfigFile">$$analysisDir$$/nextflow.config</paramValue>
     <paramValue name="nextflowWorkflow">wbazant/marker-alignments-nextflow -r main</paramValue>
     <paramValue name="isGitRepo">true</paramValue>    
-    <depends name="mirrorToCluster"/>
+    <depends name="mirrorPropsAndSupplementaryDataToCluster"/>
   </step>
 
   <step name="mirrorResultsFromCluster" stepClass="ReFlow::StepClasses::MirrorFromComputeCluster" stepLoadTypes="fromCluster">
@@ -45,7 +45,7 @@
 
   <step name="decorateEukdetectResultsWithTaxa" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::DecorateEukdetectResultsWithTaxa">
     <paramValue name="inputPath">$$analysisDir$$/cpms.tsv</paramValue>
-    <paramValue name="outputPath">$$resultsDir$$/$$resultFileName$$</paramValue>
+    <paramValue name="outputPath">$$resultDir$$/$$resultFileName$$</paramValue>
   <depends name="mirrorResultsFromCluster"/>
   </step>
 

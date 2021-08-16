@@ -50,6 +50,7 @@ process {
   maxForks = 60
 
   withLabel: 'download' {
+    errorStrategy = 'retry'
     maxForks = 5
     maxRetries = 3
   }

@@ -20,14 +20,17 @@ sub run {
     `touch $outputPath`;
     return;
   }
-
+  $self->decorateFile($inputPath, $outputPath);
+}
+sub decorateFile {
+  my ($self, $inputPath, $outputPath) = @_;
   my @lines;
 
   open(my $fh, "<", $inputPath) or die "$!: $inputPath";
   my ($idH, $valuesH) = split("\t", <$fh>, 2);
   push @lines, "lineage\t$valuesH";
-  while(my ($id, $values) = split ("\t", <$fh>, 2){
-    my ($ncbiTaxonId, $label) = split ("|", $id);
+  while(my ($id, $values) = split ("\t", <$fh>, 2)){
+    my ($ncbiTaxonId) = $id =~ m{^(\d+)};
     die "No taxon id field in $id line $." unless $ncbiTaxonId;
     my @lineage = $self->getMbioLineageForTaxonId($ncbiTaxonId);
     die "No lineage found for taxon $ncbiTaxonId" unless @lineage;
@@ -40,19 +43,30 @@ sub run {
   }
 }
 
-my @levels = ('kingdom', 'phylum', 'class', 'order', 'family', 'genus', 'species');
-my $levelsString = "'kingdom', 'phylum', 'class', 'order', 'family', 'genus', 'species'";
+my $levelsString = "'superkingdom', 'clade', 'kingdom', 'phylum', 'class', 'order', 'family', 'genus', 'species'";
+
+# We try to use old kingdoms in top level if possible: plants / animals / fungi
+sub topLevel {
+  my ($result) = @_;
+  if ($result->{superkingdom} eq 'Bacteria'){
+    return 'Bacteria';
+  } elsif ($result->{superkingdom} eq 'Archaea'){
+    return 'Archaea';
+  } else {
+    return $result->{kingdom} // $result->{clade} // $result->{superkingdom};
+  }
+}
 sub getMbioLineageForTaxonId {
   my ($self, $ncbiTaxonId) = @_;
   my $sql = "
-  select rank, name from (
-  select taxon_id, ncbi_tax_id, rank from sres.taxon
-           connect by taxon_id = prior parent_id
-           start with ncbi_tax_id = $ncbiTaxonId
-  ) t, sres.taxonname tn
-  where t.taxon_id = tn.taxon_id
-  and name_class = 'scientific name'
-  and rank in ($levelsString);
+select rank, name from (
+select taxon_id, ncbi_tax_id, rank from sres.taxon
+   connect by taxon_id = prior parent_id
+   start with ncbi_tax_id = $ncbiTaxonId
+) t, sres.taxonname tn
+where t.taxon_id = tn.taxon_id
+and name_class = 'scientific name'
+and rank in ($levelsString)
 ";
 
   my %result;
@@ -61,5 +75,6 @@ sub getMbioLineageForTaxonId {
     $result{$rank} = $name;
   }
   return unless %result;
-  return map {$_ // ""} @result{@levels};
+  return map {$_ // ""} (topLevel(\%result), @result{('phylum', 'class', 'order', 'family', 'genus', 'species')});
 }
+

@@ -55,7 +55,7 @@ sub run {
         $ampliconTaxaTable->writeTabData("$outputDir/$dataset.16s_DADA2.taxon_abundance.tsv");
       }
       if (-f $eukdetectCpmsPath){
-        $eukdetectCpmsTable = ApiCommonData::Load::MBioResultsTable::AsText->eukdetectCpms($eukdetectCpmsPath);
+        my $eukdetectCpmsTable = ApiCommonData::Load::MBioResultsTable::AsText->eukdetectCpms($eukdetectCpmsPath);
         $eukdetectCpmsTable->addSampleDetails($sampleDetailsByDataset->{$dataset});
         $eukdetectCpmsTable->writeTabSampleDetails("$outputDir/$dataset.eukaryotic_marker_alignments.sample_details.tsv");
         $eukdetectCpmsTable->writeBiom("$outputDir/$dataset.eukaryotic_marker_alignments.taxon_cpms.biom");

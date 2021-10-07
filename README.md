@@ -61,7 +61,7 @@ These are very useful for making changes, you can diff them before and after the
 ```
 cd $PROJECT_HOME/ApiCommonMetadataRepository
 
-SPARQLPATH=scripts/lib/ApiCommonData/Load/lib/SPARQL/ perl ./scripts/microbiomedb.t 
+PERL5LIB=$GUS_HOME/lib/perl:PERL5LIB SPARQLPATH=scripts/lib/ApiCommonData/Load/lib/SPARQL/ perl ./scripts/microbiomedb.t
 ```
 The test is useful for enforcing our SOPs about what sample details should be present as a minimum.
 

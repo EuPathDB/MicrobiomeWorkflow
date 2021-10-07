@@ -24,6 +24,8 @@ taxon	s1
 290746|worm-Acrobeloides_nanus	0.8
 1337|t1	0.9
 5778|protist-Vermamoeba_vermiformis	0.11
+?246006|Suhomyces_emberorum,5486|Candida_viswanathii	0.12
+?5778|protist-Vermamoeba_vermiformis	0.13
 EOF
 my $expected = <<EOF;
 lineage	s1
@@ -37,6 +39,8 @@ Eukaryota;Rhodophyta;Bangiophyceae;Porphyridiales;Porphyridiaceae;Porphyridium;P
 Metazoa;Nematoda;Chromadorea;Rhabditida;Cephalobidae;Acrobeloides;Acrobeloides nanus	0.8
 Bacteria;Firmicutes;Bacilli;Lactobacillales;Streptococcaceae;Streptococcus;Streptococcus hyointestinalis	0.9
 Eukaryota;Tubulinea;Echinamoebida;;;Vermamoeba;Vermamoeba vermiformis	0.11
+Fungi;Ascomycota;Saccharomycetes;Saccharomycetales;Debaryomycetaceae;;	0.12
+Eukaryota;Tubulinea;Echinamoebida;;;Vermamoeba;	0.13
 EOF
 my $output = "";
 $t->decorateFile(\$input, \$output);

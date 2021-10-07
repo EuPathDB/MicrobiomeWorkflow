@@ -11,8 +11,10 @@ use ReFlow::Controller::WorkflowHandle;
 my $t = MicrobiomeWorkflow::Main::WorkflowSteps::DecorateEukdetectResultsWithTaxa->new();
 
 $t->setWorkflow(ReFlow::Controller::WorkflowHandle->new(".", "mbio-inc"));
+my ($input, $expected);
+my $output = "";
 
-my $input = <<EOF;
+$input = <<EOF;
 taxon	s1
 2570542|protist-Piridium_sociabile	0.1
 114070|metazoa-Calanus_sinicus	0.2
@@ -27,22 +29,38 @@ taxon	s1
 ?246006|Suhomyces_emberorum,5486|Candida_viswanathii	0.12
 ?5778|protist-Vermamoeba_vermiformis	0.13
 EOF
-my $expected = <<EOF;
+
+$expected = <<EOF;
 lineage	s1
-Eukaryota;;;;Vitrellaceae;Piridium;Piridium sociabile	0.1
-Metazoa;Arthropoda;Hexanauplia;Calanoida;Calanidae;Calanus;Calanus sinicus	0.2
-Eukaryota;;;;;;	0.3
-Viridiplantae;Chlorophyta;Mamiellophyceae;Mamiellales;Bathycoccaceae;Ostreococcus;Ostreococcus sp. 'lucimarinus'	0.4
-Metazoa;Arthropoda;Insecta;Hemiptera;Pseudococcidae;Ferrisia;Ferrisia virgata	0.5
-Fungi;Mucoromycota;Mucoromycetes;Mucorales;Mucoraceae;Mucor;Mucor irregularis	0.6
-Eukaryota;Rhodophyta;Bangiophyceae;Porphyridiales;Porphyridiaceae;Porphyridium;Porphyridium purpureum	0.7
-Metazoa;Nematoda;Chromadorea;Rhabditida;Cephalobidae;Acrobeloides;Acrobeloides nanus	0.8
 Bacteria;Firmicutes;Bacilli;Lactobacillales;Streptococcaceae;Streptococcus;Streptococcus hyointestinalis	0.9
+Eukaryota;;;;;;	0.3
+Eukaryota;;;;Vitrellaceae;Piridium;Piridium sociabile	0.1
+Eukaryota;Rhodophyta;Bangiophyceae;Porphyridiales;Porphyridiaceae;Porphyridium;Porphyridium purpureum	0.7
+Eukaryota;Tubulinea;Echinamoebida;;;Vermamoeba;	0.13
 Eukaryota;Tubulinea;Echinamoebida;;;Vermamoeba;Vermamoeba vermiformis	0.11
 Fungi;Ascomycota;Saccharomycetes;Saccharomycetales;Debaryomycetaceae;;	0.12
-Eukaryota;Tubulinea;Echinamoebida;;;Vermamoeba;	0.13
+Fungi;Mucoromycota;Mucoromycetes;Mucorales;Mucoraceae;Mucor;Mucor irregularis	0.6
+Metazoa;Arthropoda;Hexanauplia;Calanoida;Calanidae;Calanus;Calanus sinicus	0.2
+Metazoa;Arthropoda;Insecta;Hemiptera;Pseudococcidae;Ferrisia;Ferrisia virgata	0.5
+Metazoa;Nematoda;Chromadorea;Rhabditida;Cephalobidae;Acrobeloides;Acrobeloides nanus	0.8
+Viridiplantae;Chlorophyta;Mamiellophyceae;Mamiellales;Bathycoccaceae;Ostreococcus;Ostreococcus sp. 'lucimarinus'	0.4
 EOF
-my $output = "";
 $t->decorateFile(\$input, \$output);
 
 is($output, $expected, "small test file");
+
+$input = <<EOF;
+taxon	s1	s2	s3
+1337|n1	0.05	0.2	
+1337|n2	0.05		
+1337|n3			0.3
+EOF
+$expected = <<EOF;
+lineage	s1	s2	s3
+Bacteria;Firmicutes;Bacilli;Lactobacillales;Streptococcaceae;Streptococcus;Streptococcus hyointestinalis	0.1	0.2	0.3
+EOF
+
+
+$t->decorateFile(\$input, \$output);
+
+is($output, $expected, "Merge lines with same taxon");

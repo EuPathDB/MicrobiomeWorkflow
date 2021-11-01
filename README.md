@@ -40,13 +40,19 @@ When you redo it will skip based on files instead of resubmitting, which is very
 ## PMACS cluster
 ### Humann
 ```
-bsub -e controller.e -o controller.o nextflow run VEuPathDB/humann-nextflow -with-trace -c ./nextflow.config -resume
+bsub -e bsub.e -o bsub.o 'nextflow run VEuPathDB/humann-nextflow -with-trace -c ./nextflow.config -resume | tee tee.out '
 ```
+
+
+
 humann
 ~/kneaddata_databases
 ~/lib/Trimmomatic-0.39
 
-
+### EukDetect
+```
+bsub -e bsub.e -o bsub.o 'nextflow run wbazant/marker-alignments-nextflow -r main -c ./nextflow.config -with-trace -resume | tee tee.out'
+```
 ## Sample detail files
 
 ### summary of a file

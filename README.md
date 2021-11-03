@@ -53,6 +53,11 @@ humann
 ```
 bsub -e bsub.e -o bsub.o 'nextflow run wbazant/marker-alignments-nextflow -r main -c ./nextflow.config -with-trace -resume | tee tee.out'
 ```
+
+### cleaning up
+```
+find work -type f -size +20M -delete
+```
 ## Sample detail files
 
 ### summary of a file

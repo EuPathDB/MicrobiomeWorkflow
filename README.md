@@ -20,6 +20,14 @@ workflow -h `pwd` -r -u MicrobiomeStudy_${study}_Humann
 
 bld EbrcModelCommon/Model && bld MicrobiomeWorkflow/Main/ && generateFromDatasets MicrobiomeDatasets
 ```
+
+### Remove a study
+
+```
+study=CaliforniaMosquitoes
+workflow -h `pwd` -r -u MicrobiomeStudy_${study}_copyManualDeliveryFiles
+```
+
 ### Reload microbiome.owl
 ```
 workflow -h `pwd` -r -u microbiomeGlobal.eupathCuratedOntologies

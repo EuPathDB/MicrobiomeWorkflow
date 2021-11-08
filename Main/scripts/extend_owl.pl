@@ -6,7 +6,13 @@ use feature 'say';
 # pipe out to a temporary file
 # cut -f 1 /eupath/data/EuPathDB/workflows/MicrobiomeDB/5/data/all_results/*.eukdetect.lineage_abundance.tsv | sort -u
 
-my $owl = "";
+my $owl = '
+    <owl:Class rdf:about="http://purl.obolibrary.org/obo/TMP_EUKDETECT_ORIGINAL">
+        <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/OGMS_0000056"/>
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">EukDetect original result</rdfs:label>
+    </owl:Class>
+';
+
 my $xml = "";
 
 
@@ -22,7 +28,7 @@ while(<>){
   next unless $name;
   my $p = parentTerm($kingdom);
   
-  my $id = "TMP_EUKDETECT_" . $c++; 
+  my $id = "TMP_EUKDETECT_ORIGINAL_" . $c++; 
   
   $owl .= owlStanza($id, $name, parentTerm($kingdom));  
   $xml .= xmlStanza($id, $name);
@@ -33,6 +39,7 @@ say $xml;
 
 sub parentTerm {
   my ($kingdom) = @_;
+  return "TMP_EUKDETECT_ORIGINAL";
   return $kingdom eq "Viridiplantae" ? 'EUPATH_0009264'
     : $kingdom eq "Metazoa" ? 'EUPATH_0009265'
     : $kingdom eq "Fungi" ? 'EUPATH_0009268'
@@ -45,7 +52,7 @@ sub owlStanza {
 
     <owl:Class rdf:about="http://purl.obolibrary.org/obo/$id">
         <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/$parent"/>
-        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">$name detected</rdfs:label>
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">$name originally detected</rdfs:label>
     </owl:Class>
 EOF
   return $result;
@@ -55,7 +62,7 @@ sub xmlStanza {
 my $result = <<"EOF";
 
   <ontologyTerm source_id="$id" type="characteristicQualifier" parent="Assay">
-    <name>$name</name>
+    <name>Original:$name</name>
   </ontologyTerm>
 EOF
   return $result;

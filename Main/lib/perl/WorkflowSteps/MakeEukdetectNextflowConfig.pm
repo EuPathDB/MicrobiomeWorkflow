@@ -41,7 +41,9 @@ params {
   downloadMethod = '$downloadMethod'
   unpackMethod = '$unpackMethod'
   refdb = '$eukdetectRefdbPath'
-  marker_to_taxon_path = '$eukdetectMarkerToTaxonPath'
+  markerToTaxonPath = '$eukdetectMarkerToTaxonPath'
+  summarizeAlignmentsCommand = 'marker_alignments --min-read-query-length 60 --min-taxon-num-markers 2 --min-taxon-num-reads 2 --min-taxon-better-marker-cluster-averages-ratio 1.01 --threshold-avg-match-identity-to-call-known-taxon 0.95  --threshold-num-taxa-to-call-unknown-taxon 1 --threshold-num-markers-to-call-unknown-taxon 4     --threshold-num-reads-to-call-unknown-taxon 4'
+
 }
 
 process {

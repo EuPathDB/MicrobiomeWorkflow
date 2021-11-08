@@ -5,6 +5,8 @@ package MicrobiomeWorkflow::Main::WorkflowSteps::DecorateEukdetectResultsWithTax
 use strict;
 use warnings;
 use ApiCommonWorkflow::Main::WorkflowSteps::WorkflowStep;
+use List::Util qw/reduce/;
+use feature 'say';
 
 sub run {
   my ($self, $test, $undo) = @_;
@@ -64,19 +66,33 @@ sub getLineageFromId {
 }
 sub decorateFile {
   my ($self, $inputPath, $outputPath) = @_;
-  my @lines;
+  my $header;
+
+  my %result;
 
   open(my $fh, "<", $inputPath) or die "$!: $inputPath";
   my ($idH, $valuesH) = split("\t", <$fh>, 2);
-  push @lines, "lineage\t$valuesH";
+  chomp $valuesH;
+  $header = "lineage\t$valuesH";
+  my $dim;
   while(my ($id, $values) = split ("\t", <$fh>, 2)){
     my @lineage = $self->getLineageFromId($id);
-    push @lines, join(";", @lineage) . "\t" . $values;
+    chomp $values;
+    my @vs = split("\t", $values, -1);
+    if($dim and scalar @vs != $dim){
+      die "Inconsistent num values in line $.";
+    }
+    $dim = @vs;
+
+    my $k = join(";", @lineage);
+    push @{$result{$k}}, \@vs;
   }
 
   open(my $outfh, ">", $outputPath) or die "$!: $outputPath";
-  for my $line (@lines){
-    print $outfh $line;
+  say $outfh $header;
+  for my $k (sort keys %result){
+    my $vs = reduce { my @pairwiseSum = map {my $x = ($a->[$_] ||0) + ($b->[$_]||0); $x || ""} 0..($dim-1) ; \@pairwiseSum } @{$result{$k}};
+    say $outfh join "\t", $k, @$vs;
   }
 }
 

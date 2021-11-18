@@ -117,7 +117,8 @@ installApidbSchema --db mbio-rbld --dropApiDb --allowFailures && installApidbSch
 && registerAllPlugins.pl && workflow -h `pwd` -r
 ```
 
-### When MicrobiomeWorkflow code changes
+### When MicrobiomeWorkflow XML graph changes
+Make sure nothing is running. Undo stuff you are changing. Change the code:
 ```
 bld EbrcModelCommon/Model; bld MicrobiomeWorkflow/Main/ ; generateFromDatasets MicrobiomeDatasets
 ```

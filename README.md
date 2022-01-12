@@ -1,6 +1,12 @@
 # MicrobiomeWorkflow notes
 
 ## ReFlow: doings, undoings, and redoings
+
+### Everything from scratch
+```
+installApidbSchema --db mbio-rbld --dropApiDb --allowFailures && installApidbSchema --db mbio-rbld --dropGUS --allowFailures  && build GUS install -append -installDBSchemaSkipRoles && installApidbSchema --db mbio-rbld --create && bld EbrcModelCommon/Model && bld MicrobiomeWorkflow/Main/ && generateFromDatasets MicrobiomeDatasets &&  rm -rf /eupath/data/apiSiteFilesStaging/MicrobiomeDB/5 && rm -rf data logs steps backups && registerAllPlugins.pl && workflow -h `pwd` -r
+```
+
 ### Add a new study
 ```
 workflow -h `pwd` -r -u createLineageTaxonLinkingTable

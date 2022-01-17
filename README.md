@@ -4,7 +4,13 @@
 
 ### Everything from scratch
 ```
-installApidbSchema --db mbio-rbld --dropApiDb --allowFailures && installApidbSchema --db mbio-rbld --dropGUS --allowFailures  && build GUS install -append -installDBSchemaSkipRoles && installApidbSchema --db mbio-rbld --create && bld EbrcModelCommon/Model && bld MicrobiomeWorkflow/Main/ && generateFromDatasets MicrobiomeDatasets &&  rm -rf /eupath/data/apiSiteFilesStaging/MicrobiomeDB/5 && rm -rf data logs steps backups && registerAllPlugins.pl && workflow -h `pwd` -r
+db=mbio-rbld
+staging=/eupath/data/apiSiteFilesStaging/MicrobiomeDB/5
+installApidbSchema --db $db --dropApiDb --allowFailures \
+  && installApidbSchema --db $db --dropGUS --allowFailures  \
+  && build GUS install -append -installDBSchemaSkipRoles && installApidbSchema --db $db --create \
+  && insertUserProjectGroup --projectRelease 56 --firstName Wojtek --lastName Bazant --commit \
+  && bld EbrcModelCommon/Model && bld MicrobiomeWorkflow/Main/ && generateFromDatasets MicrobiomeDatasets &&  rm -rf $staging && rm -rf data logs steps backups && registerAllPlugins.pl && workflow -h `pwd` -r
 ```
 
 ### Add a new study

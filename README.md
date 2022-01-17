@@ -57,6 +57,20 @@ workflow -h `pwd` -r -u beginMicrobiomeStudies
 ```
 When you redo it will skip based on files instead of resubmitting, which is very good.
 
+## Ops
+### Watch progress
+```
+watch workflowSummary -h `pwd`
+```
+### List failed
+```
+workflow -h `pwd` -s FAILED
+```
+
+### Failed -> ready
+```
+workflowstep -h `pwd` -p % ready
+```
 ## PMACS cluster
 ### Humann
 ```

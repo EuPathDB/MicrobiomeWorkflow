@@ -1,0 +1,121 @@
+<workflowGraph name="">
+  <param name="projectName"/>
+  <param name="projectVersionForWebsiteFiles"/>
+
+ 
+
+  <constant name="relativeWebServicesDir">webServices/$$projectName$$/release-$$projectVersionForWebsiteFiles$$</constant>
+  <constant name="relativeDownloadSiteDir">downloadSite/$$projectName$$/release-$$projectVersionForWebsiteFiles$$/</constant>
+  <constant name="relativeAuxiliaryDir">auxiliary/$$projectName$$/release-$$projectVersionForWebsiteFiles$$/</constant>
+  <constant name="datasetLoaderXmlFileName">MicrobiomeDB.xml</constant>
+  <step name="initUserGroupProject" 
+	stepClass="ApiCommonWorkflow::Main::WorkflowSteps::InitUserGroupProject">
+    <paramValue name="projectName">$$projectName$$</paramValue>
+  </step>
+
+  <step name="makeProjectReleaseDownloadDir" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::InitSiteDir">
+    <paramValue name="relativeDir">$$relativeDownloadSiteDir$$</paramValue>
+    <depends name="initUserGroupProject"/>
+  </step>
+  
+  <step name="makeProjectReleaseWebServicesDir" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::InitSiteDir">
+    <paramValue name="relativeDir">$$relativeWebServicesDir$$</paramValue>
+    <depends name="initUserGroupProject"/>
+  </step>
+  
+  <step name="makeProjectReleaseAuxiliaryDir" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::InitSiteDir">
+    <paramValue name="relativeDir">$$relativeAuxiliaryDir$$</paramValue>
+    <depends name="initUserGroupProject"/>
+  </step>
+
+
+  <subgraph name="Ontology_Relationship_Types_RSRC" xmlFile="loadDataset.xml">
+    <paramValue name="datasetName">Ontology_Relationship_Types_RSRC</paramValue>
+    <paramValue name="datasetLoaderXmlFileName">$$datasetLoaderXmlFileName$$</paramValue>
+    <paramValue name="parentDataDir"></paramValue>
+    <depends name="initUserGroupProject"/>
+  </subgraph>
+
+<!--
+  <subgraph name="eupathCuratedOntologies" xmlFile="generated/microbiomeGlobal/eupathCuratedOntologies.xml">
+    <paramValue name="parentDataDir">global</paramValue>
+    <paramValue name="datasetLoaderXmlFileName">$$datasetLoaderXmlFileName$$</paramValue>
+    <depends name="makeDataDir"/>
+  </subgraph>
+-->
+  <step name="beginMicrobiomeOwls" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::DoNothingStep">
+    <depends name="initUserGroupProject"/>
+    <depends name="Ontology_Relationship_Types_RSRC"/>
+  </step>
+
+  <step name="beginCopyStudies" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::DoNothingStep">
+    <depends name="initUserGroupProject"/>
+  </step>
+
+  <datasetTemplate class="MicrobiomeOwlEda">
+    <prop name="name"/>
+    <subgraph name="MicrobiomeOwlEda_${name}" xmlFile="loadDataset.xml">
+      <paramValue name="datasetName">OntologyTerm_${name}_RSRC</paramValue>
+      <paramValue name="datasetLoaderXmlFileName">$$datasetLoaderXmlFileName$$</paramValue>
+      <paramValue name="parentDataDir"></paramValue>
+      <depends name="beginMicrobiomeOwls"/>
+    </subgraph>
+  </datasetTemplate>
+
+  <datasetTemplate class="MicrobiomeStudyEda">
+    <prop name="name"/>
+    <prop name="version"/>
+    <prop name="owl"/>
+    <prop name="sampleDetails"/>
+
+    <subgraph name="MicrobiomeStudy_${name}_copyManualDeliveryAndInvestigationFiles" xmlFile="loadDataset.xml">
+      <paramValue name="parentDataDir"></paramValue>
+      <paramValue name="datasetName">MicrobiomeStudyEDA_${name}_RSRC</paramValue>
+      <paramValue name="datasetLoaderXmlFileName">$$datasetLoaderXmlFileName$$</paramValue>
+      <paramValue name="name">${name}</paramValue>
+      <paramValue name="version">${version}</paramValue>
+      <paramValue name="sampleDetails">${sampleDetails}</paramValue>
+      <depends name="beginCopyStudies"/>
+    </subgraph>
+
+    <step name="MicrobiomeStudyEDA_${name}_RSRC_insertEntityGraph" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::MBioInsertEntityGraph" stepLoadTypes="plugin">
+      <paramValue name="extDbRlsSpec">MicrobiomeStudyEDA_${name}_RSRC|${version}</paramValue>
+      <paramValue name="schema">EDA</paramValue>
+      <paramValue name="investigationFile">MicrobiomeStudyEDA_${name}_RSRC/ISA/${sampleDetails}/i_Investigation.xml </paramValue>
+      <paramValue name="ontologyMappingFile">OntologyTerm_${owl}_RSRC/${owl}.owl</paramValue>
+      <paramValue name="mbioResultsDir">MicrobiomeStudyEDA_${name}_RSRC/results</paramValue>
+      <paramValue name="mbioResultsFileExtensions">'{ampliconTaxa => "lineage_abundance.tsv", wgsTaxa => "lineage_abundance.tsv", level4ECs => "level4ec.tsv", pathwayAbundances => "pathway_abundance.tsv", pathwayCoverages => "pathway_coverage.tsv", eukdetectCpms => "eukdetect.lineage_abundance.tsv" }'</paramValue>
+
+      <depends name="MicrobiomeOwlEda_${owl}"/>
+      <depends name="MicrobiomeStudy_${name}_copyManualDeliveryAndInvestigationFiles"/>
+    </step>
+
+    <step name="MicrobiomeStudyEDA_${name}_RSRC_loadAttributesFromEntityGraph" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::DatasetLoaderRunPlugin" stepLoadTypes="plugin">
+      <paramValue name="dataDir"></paramValue>
+      <paramValue name="datasetName">MicrobiomeStudyEDA_${name}_RSRC</paramValue>
+      <paramValue name="datasetLoaderXmlFileName">$$datasetLoaderXmlFileName$$</paramValue>
+      <paramValue name="plugin">ApiCommonData::Load::Plugin::LoadAttributesFromEntityGraph</paramValue>
+      <paramValue name="extDbRlsSpec">MicrobiomeStudyEDA_${name}_RSRC|${version}</paramValue>
+      <depends name="MicrobiomeStudyEDA_${name}_RSRC_insertEntityGraph"/>
+    </step>
+    
+    <step name="MicrobiomeStudyEDA_${name}_RSRC_loadEntityTypeAndAttributeGraphs" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::DatasetLoaderRunPlugin" stepLoadTypes="plugin">
+      <paramValue name="dataDir"></paramValue>
+      <paramValue name="datasetName">MicrobiomeStudyEDA_${name}_RSRC</paramValue>
+      <paramValue name="datasetLoaderXmlFileName">$$datasetLoaderXmlFileName$$</paramValue>
+      <paramValue name="plugin">ApiCommonData::Load::Plugin::LoadEntityTypeAndAttributeGraphs</paramValue>
+      <paramValue name="extDbRlsSpec">MicrobiomeStudyEDA_${name}_RSRC|${version}</paramValue>
+      <depends name="MicrobiomeStudyEDA_${name}_RSRC_loadAttributesFromEntityGraph"/>
+    </step>
+    
+    <step name="MicrobiomeStudyEDA_${name}_RSRC_loadDatasetSpecificEntityGraph" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::DatasetLoaderRunPlugin" stepLoadTypes="plugin">
+      <paramValue name="dataDir"></paramValue>
+      <paramValue name="datasetName">MicrobiomeStudyEDA_${name}_RSRC</paramValue>
+      <paramValue name="datasetLoaderXmlFileName">$$datasetLoaderXmlFileName$$</paramValue>
+      <paramValue name="plugin">ApiCommonData::Load::Plugin::LoadDatasetSpecificEntityGraph</paramValue>
+      <paramValue name="extDbRlsSpec">MicrobiomeStudyEDA_${name}_RSRC|${version}</paramValue>
+      <depends name="MicrobiomeStudyEDA_${name}_RSRC_loadEntityTypeAndAttributeGraphs"/>
+    </step>
+
+  </datasetTemplate>
+</workflowGraph>

@@ -112,6 +112,23 @@ The test is useful for enforcing our SOPs about what sample details should be pr
 
 We don't follow the SOPs completely, but they're helpful anyway. The test also fails if the mapping isn't complete.
 
+### EDA
+
+Is the conversion file good? This should be empty:
+```
+comm -3 \
+ <( $PROJECT_HOME/ApiCommonMetadataRepository/scripts/list_variables_in_conversion_file.sh $PROJECT_HOME/ApiCommonData/Load/ontology/Microbiome/doc/Microbiome_human_only_conversion.csv ) \
+ <( $PROJECT_HOME/ApiCommonMetadataRepository/scripts/list_variables_in_metadata_dir.sh  $PROJECT_HOME/ApiCommonMetadataRepository/ISA/metadata/MBSTDY0021/ ) \
+     | head
+```
+
+Is the owl good? This should be empty:
+```
+comm -23 \
+  <( $PROJECT_HOME/ApiCommonMetadataRepository/scripts/list_variables_in_metadata_dir.sh  $PROJECT_HOME/ApiCommonMetadataRepository/ISA/metadata/MBSTDY0021/ | tr A-Z a-z | sort ) \
+  <( perl $PROJECT_HOME/ApiCommonMetadataRepository/scripts/list_variables_in_owl.pl $PROJECT_HOME/ApiCommonData/Load/ontology/Microbiome/microbiome_human_only.owl | sort ) \
+  | head
+```
 
 ## Overview of where what is
 (10 2021)

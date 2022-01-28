@@ -55,12 +55,19 @@
 
   <datasetTemplate class="MicrobiomeOwlEda">
     <prop name="name"/>
+
     <subgraph name="MicrobiomeOwlEda_${name}" xmlFile="loadDataset.xml">
       <paramValue name="datasetName">OntologyTerm_${name}_RSRC</paramValue>
       <paramValue name="datasetLoaderXmlFileName">$$datasetLoaderXmlFileName$$</paramValue>
       <paramValue name="parentDataDir"></paramValue>
       <depends name="beginMicrobiomeOwls"/>
     </subgraph>
+
+    <step name="MicrobiomeOwlEda_${name}_synonyms" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::LoadAnnotationsAsOntologySynonyms" stepLoadTypes="plugin">
+      <paramValue name="extDbRlsSpec">OntologyTerm_${name}_RSRC|dontcare</paramValue>
+      <paramValue name="attributesFile">OntologyTerm_${name}_RSRC/${name}.eda.txt</paramValue>
+      <depends name="MicrobiomeOwlEda_${name}"/>
+    </step>
   </datasetTemplate>
 
   <datasetTemplate class="MicrobiomeStudyEda">
@@ -97,6 +104,7 @@
       <paramValue name="extDbRlsSpec">MicrobiomeStudyEDA_${name}_RSRC|${version}</paramValue>
       <paramValue name="ontologyExtDbRlsSpec">OntologyTerm_${owl}_RSRC|dontcare</paramValue>
       <paramValue name="schema">EDA</paramValue>
+      <depends name="MicrobiomeOwlEda_${owl}_synonyms"/>
       <depends name="MicrobiomeStudyEDA_${name}_RSRC_insertEntityGraph"/>
     </step>
     

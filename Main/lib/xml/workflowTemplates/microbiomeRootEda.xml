@@ -36,17 +36,25 @@
     <depends name="initUserGroupProject"/>
   </subgraph>
 
-  <subgraph name="OntologyTerm_EuPath_RSRC" xmlFile="loadDataset.xml">
-    <paramValue name="datasetName">OntologyTerm_EuPath_RSRC</paramValue>
+    <subgraph name="OBO_Ontology_OBI_RSRC" xmlFile="loadDataset.xml" stepLoadTypes="runPlugin:insertOntologyTermsAndRelationships">
+      <paramValue name="datasetName">OBO_Ontology_OBI_RSRC</paramValue>
+      <paramValue name="datasetLoaderXmlFileName">$$datasetLoaderXmlFileName$$</paramValue>
+      <paramValue name="parentDataDir"></paramValue>
+      <depends name="Ontology_Relationship_Types_RSRC"/>
+    </subgraph>
+
+  <subgraph name="CommonTermsOwlEda" xmlFile="loadDataset.xml">
+    <paramValue name="datasetName">OntologyTerm_EuPathIsa_RSRC</paramValue>
     <paramValue name="datasetLoaderXmlFileName">$$datasetLoaderXmlFileName$$</paramValue>
     <paramValue name="parentDataDir"></paramValue>
-    <depends name="initUserGroupProject"/>
+    <depends name="Ontology_Relationship_Types_RSRC"/>
   </subgraph>
 
   <step name="beginMicrobiomeOwls" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::DoNothingStep">
     <depends name="initUserGroupProject"/>
     <depends name="Ontology_Relationship_Types_RSRC"/>
-    <depends name="OntologyTerm_EuPath_RSRC"/>
+    <depends name="CommonTermsOwlEda"/>
+    <depends name="OBO_Ontology_OBI_RSRC"/>
   </step>
 
   <step name="beginCopyStudies" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::DoNothingStep">
@@ -96,6 +104,7 @@
       <paramValue name="mbioResultsFileExtensions">'{ampliconTaxa => "lineage_abundance.tsv", wgsTaxa => "metaphlan.tsv", level4ECs => "level4ec.tsv", pathwayAbundances => "pathway_abundance.tsv", pathwayCoverages => "pathway_coverage.tsv", eukdetectCpms => "eukdetect.lineage_abundance.tsv" }'</paramValue>
       <paramValue name="dieOnFirstError">1</paramValue>
       <depends name="MicrobiomeOwlEda_${owl}"/>
+
       <depends name="MicrobiomeStudy_${name}_copyManualDeliveryAndInvestigationFiles"/>
     </step>
 

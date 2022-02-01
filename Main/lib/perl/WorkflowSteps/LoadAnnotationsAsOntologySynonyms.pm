@@ -17,7 +17,7 @@ sub run {
 
     my @args = ();
     push @args, "--attributesFile", join ("/", $self->getWorkflowDataDir(), $self->getParamValue("attributesFile"));
-    push @args, "--extDbRlsSpec", $self->getParamValue('extDbRlsSpec');
+    push @args, "--extDbRlsSpec", "'" . $self->getParamValue('extDbRlsSpec') . "'";
   
     $self->runPlugin($test, $undo, "GUS::Supported::Plugin::InsertOntologySynonymAttributes", join(" ", @args));
 }

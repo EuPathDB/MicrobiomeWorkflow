@@ -50,11 +50,19 @@
     <depends name="Ontology_Relationship_Types_RSRC"/>
   </subgraph>
 
+  <subgraph name="taxonomy" xmlFile="loadDataset.xml">
+    <paramValue name="datasetName">taxonomy_RSRC</paramValue>
+    <paramValue name="datasetLoaderXmlFileName">$$datasetLoaderXmlFileName$$</paramValue>
+    <paramValue name="parentDataDir"></paramValue>
+    <depends name="Ontology_Relationship_Types_RSRC"/>
+  </subgraph>
+
   <step name="beginMicrobiomeOwls" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::DoNothingStep">
     <depends name="initUserGroupProject"/>
     <depends name="Ontology_Relationship_Types_RSRC"/>
     <depends name="CommonTermsOwlEda"/>
     <depends name="OBO_Ontology_OBI_RSRC"/>
+    <depends name="taxonomy"/>
   </step>
 
   <step name="beginCopyStudies" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::DoNothingStep">
@@ -108,7 +116,7 @@
       <depends name="MicrobiomeStudy_${name}_copyManualDeliveryAndInvestigationFiles"/>
     </step>
 
-    <step name="MicrobiomeStudyEDA_${name}_RSRC_loadAttributesFromEntityGraph" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::LoadAttributesFromEntityGraph" stepLoadTypes="plugin">
+    <step name="MicrobiomeStudyEDA_${name}_RSRC_loadAttributesFromEntityGraph" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::LoadAttributesFromEntityGraph" stepLoadTypes="sqlldr">
       <paramValue name="logDir">EDA_${name}</paramValue>
       <paramValue name="extDbRlsSpec">MicrobiomeStudyEDA_${name}_RSRC|${version}</paramValue>
       <paramValue name="ontologyExtDbRlsSpec">OntologyTerm_${owl}_RSRC|dontcare</paramValue>

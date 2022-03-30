@@ -36,7 +36,7 @@
   </step>
 
   <step name="mirrorResultsFromCluster" stepClass="MicrobiomeWorkflow::Main::RetrieveEukdetectResultsFromComputeCluster" stepLoadTypes="fromCluster">
-    <paramValue name="clusterDir">$$analysisDir$$/results/cpms.tsv</paramValue>
+    <paramValue name="clusterDir">$$analysisDir$$/results</paramValue>
     <paramValue name="targetDir">$$analysisDir$$</paramValue>
     <paramValue name="cpmsTargetFileName">cpms.tsv</paramValue>
     <depends name="runClusterTask"/>

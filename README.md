@@ -165,3 +165,8 @@ Make sure nothing is running. Undo stuff you are changing. Change the code:
 ```
 bld EbrcModelCommon/Model; bld MicrobiomeWorkflow/Main/ ; generateFromDatasets MicrobiomeDatasets
 ```
+
+### Add EukDetect results to sample details
+shouldn't need that in EDA!
+bash /home/wbazant/project_home/MicrobiomeWorkflow/Main/scripts/add_eukdetect_terms_to_sample_details.sh
+then see /home/wbazant/project_home/MicrobiomeWorkflow/Main/scripts/extend_owl.pl

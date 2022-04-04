@@ -172,9 +172,13 @@ bash /home/wbazant/project_home/MicrobiomeWorkflow/Main/scripts/add_eukdetect_te
 then see /home/wbazant/project_home/MicrobiomeWorkflow/Main/scripts/extend_owl.pl
 
 ### Studies not showing up correctly? checklist
+- IDs need to match between result files and sample details files
+- sample details file needs to contain "env_feature" (for cross study query)
+- EukDetect files need to have been added to sample details (and for that the sample details files need to be sorted on the first column)
+- sample details and ontologies need to match
 - study name needs to match in `$PROJECT_HOME/MicrobiomePresenters/Model/lib/xml/datasetPresenters/MicrobiomeDB.xml`, `$PROJECT_HOME/ApiCommonMetadataRepository/ISA/metadata/MBSTDY0020/i_Investigation.xml`, `$PROJECT_HOME/MicrobiomeDatasets/Datasets/lib/xml/datasets/MicrobiomeDB.xml`
 - the build number in the presenter needs to be <= the one in the model
 - the build number in the model needs to be up to date
 - there needs to be an entry for that build number in the build dates file
 - tuning manager needs to have run
-- site needs to be rebuilt
+- site needs to have been rebuilt

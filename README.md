@@ -170,3 +170,11 @@ bld EbrcModelCommon/Model; bld MicrobiomeWorkflow/Main/ ; generateFromDatasets M
 shouldn't need that in EDA!
 bash /home/wbazant/project_home/MicrobiomeWorkflow/Main/scripts/add_eukdetect_terms_to_sample_details.sh
 then see /home/wbazant/project_home/MicrobiomeWorkflow/Main/scripts/extend_owl.pl
+
+### Studies not showing up correctly? checklist
+- study name needs to match in `$PROJECT_HOME/MicrobiomePresenters/Model/lib/xml/datasetPresenters/MicrobiomeDB.xml`, `$PROJECT_HOME/ApiCommonMetadataRepository/ISA/metadata/MBSTDY0020/i_Investigation.xml`, `$PROJECT_HOME/MicrobiomeDatasets/Datasets/lib/xml/datasets/MicrobiomeDB.xml`
+- the build number in the presenter needs to be <= the one in the model
+- the build number in the model needs to be up to date
+- there needs to be an entry for that build number in the build dates file
+- tuning manager needs to have run
+- site needs to be rebuilt

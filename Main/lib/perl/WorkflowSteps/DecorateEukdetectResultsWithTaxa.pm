@@ -10,9 +10,8 @@ use feature 'say';
 
 sub run {
   my ($self, $test, $undo) = @_;
-
-  my $inputPath =  $self->getParamValue("inputPath");
-  my $outputPath =  $self->getParamValue("outputPath");
+  my $inputPath = join("/", $self->getWorkflowDataDir(),  $self->getParamValue("inputPath"));
+  my $outputPath = join("/", $self->getWorkflowDataDir(),  $self->getParamValue("outputPath"));
 
   if($undo){
     return;

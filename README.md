@@ -1,13 +1,15 @@
 # MicrobiomeWorkflow - current site
 
 ## Where is the code?
-The workflow graph is in https://github.com/VEuPathDB/MicrobiomeWorkflow/tree/master/Main/lib/xml and also https://github.com/VEuPathDB/EbrcModelCommon/blob/master/Model/lib/xml/datasetClass/classes.xml.
-The individual steps are in https://github.com/VEuPathDB/MicrobiomeWorkflow/tree/master/Main/lib/perl, they inherit from common steps in https://github.com/VEuPathDB/ApiCommonWorkflow/ and https://github.com/VEuPathDB/ReFlow/.
-The Perl code for loading the results is mostly in https://github.com/VEuPathDB/ApiCommonData - our bits start with "MBio" in https://github.com/VEuPathDB/ApiCommonData/tree/master/Load/lib/perl and the unit tests are in https://github.com/VEuPathDB/ApiCommonData/tree/master/Load/t.
-The ontology parts - common, but received a lot of work to accomodate MicrobiomeDB and later EDA - start with CBIL::ISA::InvestigationSimple, and other stuff in https://github.com/VEuPathDB/CBIL/tree/master/ISA.
-The 16s workflow is the task of running DADA2 in DJob - https://github.com/VEuPathDB/DJob/tree/master/DistribJobTasks/bin/dada2 for individual scripts, and there's also https://github.com/VEuPathDB/DJob/blob/master/DistribJobTasks/lib/perl/ASVTableTask.pm that calls out to them.
-There's no one WGS workflow, there are two separate tasks: `humann` - https://github.com/VEuPathDB/humann-nextflow - and `CORRAL` on https://github.com/wbazant/CORRAL/
-The `humann` workflow relies on custom forks of `humann` (https://github.com/wbazant/humann) and `kneaddata` (https://github.com/wbazant/kneaddata). Not much is done with the results, except decorating with taxon IDs and loading appropriately.
+Dan asked once, and Wojtek produced this handy overview!
+
+1. The workflow graph is in https://github.com/VEuPathDB/MicrobiomeWorkflow/tree/master/Main/lib/xml and also https://github.com/VEuPathDB/EbrcModelCommon/blob/master/Model/lib/xml/datasetClass/classes.xml.
+2. The individual steps are in https://github.com/VEuPathDB/MicrobiomeWorkflow/tree/master/Main/lib/perl, they inherit from common steps in https://github.com/VEuPathDB/ApiCommonWorkflow/ and https://github.com/VEuPathDB/ReFlow/.
+3. The Perl code for loading the results is mostly in https://github.com/VEuPathDB/ApiCommonData - our bits start with "MBio" in https://github.com/VEuPathDB/ApiCommonData/tree/master/Load/lib/perl and the unit tests are in https://github.com/VEuPathDB/ApiCommonData/tree/master/Load/t.
+4. The ontology parts - common, but received a lot of work to accomodate MicrobiomeDB and later EDA - start with CBIL::ISA::InvestigationSimple, and other stuff in https://github.com/VEuPathDB/CBIL/tree/master/ISA.
+5. The 16s workflow is the task of running DADA2 in DJob - https://github.com/VEuPathDB/DJob/tree/master/DistribJobTasks/bin/dada2 for individual scripts, and there's also https://github.com/VEuPathDB/DJob/blob/master/DistribJobTasks/lib/perl/ASVTableTask.pm that calls out to them.
+6. There's no one WGS workflow, there are two separate tasks: `humann` - https://github.com/VEuPathDB/humann-nextflow - and `CORRAL` on https://github.com/wbazant/CORRAL/
+7. The `humann` workflow relies on custom forks of `humann` (https://github.com/wbazant/humann) and `kneaddata` (https://github.com/wbazant/kneaddata). Not much is done with the results, except decorating with taxon IDs and loading appropriately.
 
 ## Where is the data?
 Manual delivery dir: `/eupath/data/EuPathDB/manualDelivery/MicrobiomeDB/common/MicrobiomeStudy`
@@ -288,11 +290,11 @@ To add a new study into EDA:
 2. pick a moniker `$STUDY` for the study and version `$VERSION` with today's date
 3. put all the results in `/eupath/data/EuPathDB/manualDelivery/MicrobiomeDB/common/MicrobiomeStudyEda/$STUDY/$VERSION`
 4. add a MicrobiomeStudyEda entry to MicrobiomeDatasets with the new `$STUDY`, `$VERSION`, and .owl (probably: microbiome_human_only.owl)
-5. a) `cd $PROJECT_HOME/ApiCommonMetadataRepository/ISA/metadata/MBSTDY0021/`
-5. b) put sample details under `$STUDY.txt`
-5. c) Edit `$PROJECT_HOME/ApiCommonMetadataRepository/scripts/make_eda_Xmls.pl` and run it to get the appropriate entity graph in `$STUDY.xml`
-6. Do some input checks. See: Operations
-7. Do the workflow. Nothing depends on all studies as a whole, so no `undo`s needed until something goes wrong!
+5. `cd $PROJECT_HOME/ApiCommonMetadataRepository/ISA/metadata/MBSTDY0021/`
+6. put sample details under `$STUDY.txt`
+7. Edit `$PROJECT_HOME/ApiCommonMetadataRepository/scripts/make_eda_Xmls.pl` and run it to get the appropriate entity graph in `$STUDY.xml`
+8. Do some input checks. See: Operations
+9. Do the workflow. Nothing depends on all studies as a whole, so no `undo`s needed until something goes wrong!
 
 
 ## Operations

@@ -262,11 +262,15 @@ find otuDADA2_* -type f -size +20M -delete
 ## Where is the stuff?
 
 ```
-Root of the workflow
+# Root of the workflow
 $PROJECT_HOME/MicrobiomeWorkflow/Main/lib/xml/workflowTemplates/microbiomeRootEda.xml
 
-Result files
+# Result files
 /eupath/data/EuPathDB/manualDelivery/MicrobiomeDB/common/MicrobiomeStudyEda
+
+# Workflow directory
+/eupath/data/EuPathDB/devWorkflows/MicrobiomeDB/EDAwg
+
 
 Datasets and presenters are together with the main ones, but get an "Eda" prefix:
 https://github.com/VEuPathDB/MicrobiomeDatasets/

@@ -290,15 +290,16 @@ The sample details files are in https://github.com/VEuPathDB/ApiCommonMetadataRe
 Super chill. Data loading will be a breeze when MicrobiomeDB is "on EDA"!
 
 To add a new study into EDA:
-1. run workflows with computations however you like and get the result files, for example: get them from the old workflow
-2. pick a moniker `$STUDY` for the study and version `$VERSION` with today's date
-3. put all the results in `/eupath/data/EuPathDB/manualDelivery/MicrobiomeDB/common/MicrobiomeStudyEda/$STUDY/$VERSION`
-4. add a MicrobiomeStudyEda entry to MicrobiomeDatasets with the new `$STUDY`, `$VERSION`, and .owl (probably: microbiome_human_only.owl)
-5. `cd $PROJECT_HOME/ApiCommonMetadataRepository/ISA/metadata/MBSTDY0021/`
-6. put sample details under `$STUDY.txt`
-7. Edit `$PROJECT_HOME/ApiCommonMetadataRepository/scripts/make_eda_Xmls.pl` and run it to get the appropriate entity graph in `$STUDY.xml`
-8. Do some input checks. See: Operations
-9. Do the workflow. Nothing depends on all studies as a whole, so no `undo`s needed until something goes wrong!
+1. run workflows with computations however you like and get the result files, for example: get them from the old workflow. Verify success and announce it.
+2. Get sample detail as .txt from Dan, and correspondingly updated .owl files from Jie. Jie will also pick a moniker for the study, e.g. `Malaysia_Helminth`, when updating the .owl.
+3. Do some input checks. Do not make corrections yourself - instead, ask people who gave you the files to make the changes. See: Operations
+4. add environment variables to you Bash session: `$STUDY` for the study's moniker and `$VERSION` with today's date 
+5. put all the results in `/eupath/data/EuPathDB/manualDelivery/MicrobiomeDB/common/MicrobiomeStudyEda/$STUDY/$VERSION`
+6. add a MicrobiomeStudyEda entry to MicrobiomeDatasets with the new `$STUDY`, `$VERSION`, and .owl (probably: microbiome_human_only.owl)
+7. `cd $PROJECT_HOME/ApiCommonMetadataRepository/ISA/metadata/MBSTDY0021/`
+8. put sample details under `$STUDY.txt`
+9. Edit `$PROJECT_HOME/ApiCommonMetadataRepository/scripts/make_eda_Xmls.pl` and run it to get the appropriate entity graph in `$STUDY.xml`
+11. Do the workflow. Nothing depends on all studies as a whole, but you might need to `undo` when you update an .owl.
 
 
 ## Operations
@@ -325,8 +326,49 @@ Are the result files correctly named? Look at the `mbioResultsFileExtensions` pa
 
 Do the result files use correct IDs? Look at the first column of your results file, and the sample ID column (usually: name) - that's how they will be paired up.
 
+### Summarise file contents
+
+Really handy if you're messing with file contents, because you can compare the output before and after:
+```
+f=$PROJECT_HOME/ApiCommonMetadataRepository/ISA/metadata/MBSTDY0021/Malaysia_Helminth.txt
+owl=$PROJECT_HOME/ApiCommonData/Load/ontology/Microbiome/microbiome_human_only.owl
+
+$PROJECT_HOME/ApiCommonMetadataRepository/scripts/summarise_ISA.pl $f $owl
+```
+
+Example - remove a column:
+```
+transpose $f | grep -v env_feature | transpose > $f.1
+diff <( $PROJECT_HOME/ApiCommonMetadataRepository/scripts/summarise_ISA.pl $f $owl) <( $PROJECT_HOME/ApiCommonMetadataRepository/scripts/summarise_ISA.pl $f.1 $owl )
+mv $f.1 $f
+
+```
+
 ## ReFlow commands
-TODO!
+
+This is our biggest undo, which needs to happen when the .owl changes, because everything depends on it.
+```
+workflow -h `pwd` -r -u beginMicrobiomeOwls
+```
+
+If you want to reload all studies but keep the .owls do this one:
+```
+workflow -h `pwd` -r -u beginCopyStudies
+```
+
+To add new studies, no undos are needed - add them to MicrobiomeDatasets, make the workflow graph bigger, and rerun.
+
+I think this is the comprehensive `bld` command which will always work:
+```
+
+bld CBIL/ISA && bld ApiCommonData/Load && bld ApiCommonMetadataRepository/ISA && bld EbrcModelCommon/Model && bld MicrobiomeWorkflow/Main/ && generateFromDatasets MicrobiomeDatasets
+```
+
+If sample details or manual delivery files change, undo up to here: 
+```
+study=MORDOR_metatranscriptome
+workflow -h `pwd` -r -u MicrobiomeStudy_${study}_copyManualDeliveryAndInvestigationFiles
+```
 
 ## Development
 ### Edit entity graph structure
@@ -342,6 +384,22 @@ Then there are .xml files .e.g: https://github.com/VEuPathDB/ApiCommonMetadataRe
 The xml says that source for human-only is actually a "Participant", the graph defines what the nodes and edges are, and so on. You can make these files with a master script - https://github.com/VEuPathDB/ApiCommonMetadataRepository/blob/master/scripts/make_eda_Xmls.pl.
 
 Change all of that and reload, and you'll have a different entity graph!
+
+### Start from scratch
+
+
+```
+db=rm41910
+staging=/eupath/data/apiSiteFilesStaging//MicrobiomeDB/EDAwg
+cd /eupath/data/EuPathDB/devWorkflows/MicrobiomeDB/EDAwg
+installApidbSchema --db $db --dropApiDb --allowFailures <<< "$db
+" \
+  && installApidbSchema --db $db --dropGUS --allowFailures  <<< "$db
+" \
+  && build GUS install -append -installDBSchemaSkipRoles && installApidbSchema --db $db --create \
+  && insertUserProjectGroup --projectRelease 57 --firstName Wojtek --lastName Bazant --commit \
+  && bld EbrcModelCommon/Model && bld MicrobiomeWorkflow/Main/ && generateFromDatasets MicrobiomeDatasets && rm -rf $staging && rm -rf data logs steps backups && registerAllPlugins.pl && workflow -h `pwd` -r
+```
 
 # Miscellaneous
 

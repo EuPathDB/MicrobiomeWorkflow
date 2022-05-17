@@ -246,7 +246,7 @@ bsub -e bsub.e -o bsub.o 'nextflow run VEuPathDB/humann-nextflow -with-trace -c 
 bsub -e bsub.e -o bsub.o 'nextflow run wbazant/CORRAL -r main -c ./nextflow.config -with-trace -resume | tee tee.out'
 ```
 
-### cleaning up
+### cleaning up once the study completes
 ```
 find work -type f -size +20M -delete
 ```

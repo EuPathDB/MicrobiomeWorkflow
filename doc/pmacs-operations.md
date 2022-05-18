@@ -13,6 +13,21 @@ For an overall guide to 16s see [this doc](16s-guide.md).
 
 ## Nextflow workflows
 
+### Download pipelines
+
+To see what you have installed:
+
+```
+nextflow list
+```
+
+To pull our dependencies:
+
+```
+nextflow pull VEupathDB/humann-nextflow
+nextflow pull wbazant/CORRAL
+```
+
 This is how you start Nextflow after you prepare an appropriate `./nextflow.config`, or restart after a failure:
 
 humann

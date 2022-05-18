@@ -6,13 +6,14 @@
 
 [PMACS setup](pmacs-setup.md)
 
+[PMACS operations](pmacs-operations.md)
+
 [New study - 16s dataset](16s-guide.md)
 
 [New study - WGS](wgs-guide.md)
 
 [New study - sample details](sample-details-guide.md)
 
-[PMACS operations](pmacs-operations.md)
 
 
 ## Live site loading

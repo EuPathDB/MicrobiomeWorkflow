@@ -14,14 +14,13 @@ For an overall guide to 16s see [this doc](16s-guide.md).
 ## Nextflow workflows
 
 ### Download pipelines
-
-To see what you have installed:
+The ReFlow workflow pulls a newest version of the pipeline. To see what you have installed:
 
 ```
 nextflow list
 ```
 
-To pull our dependencies:
+To pull dependencies by hand:
 
 ```
 nextflow pull VEupathDB/humann-nextflow

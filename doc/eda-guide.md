@@ -4,9 +4,8 @@
 
 See [EDA: what is where](eda-what-is-where.md) for paths to directories etc.
 
-```
-
 ## What is the workflow like?
+
 Super chill. Data loading will be a breeze when MicrobiomeDB is "on EDA"!
 
 ## Adding a new study - step by step guide

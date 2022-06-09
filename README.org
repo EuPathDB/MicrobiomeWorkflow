@@ -1,0 +1,24 @@
+* MicrobiomeWorkflow
+
+workflow step classes and workflow graphs in XML for MicrobiomeDB
+
+** Dependencies
+
+   + yarn / npm / ant
+   + environment variables for GUS_HOME and PROJECT_HOME
+   + Internal Dependencies
+     + ApiCommonWorkflow, ReFlow, EbrcModelCommon
+
+** Installation instructions.
+
+   + bld MicrobiomeWorkflow
+
+** Operating instructions.
+
+   + changes to workflow template files requires generateFromDatasets ExampleDatasets
+
+** Manifest
+
+   + Main/bin :: scripts to generate workflow files from dataset files for a provided component project.
+   + Main/lib/perl :: workflow step classes in Perl. These are reusable modules for any type of task.
+   + Main/lib/xml :: workflow graphs in XML. These graphs have steps that depend on each other and can also call subgraphs. Each step is a parameterized call to a step class.

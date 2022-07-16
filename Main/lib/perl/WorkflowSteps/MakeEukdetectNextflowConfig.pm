@@ -23,6 +23,8 @@ sub run {
   my $executor = $self->getClusterExecutor();
   my $queue = $self->getClusterQueue();
 
+  my $apiKey = $self->getConfig('apiKey');
+
   if ($undo) {
     $self->runCmd(0,"rm -rf $configPath");
   } else {
@@ -36,6 +38,8 @@ sub run {
 "
 params {
   inputPath = '$clusterSampleToFastqPath'
+  apiKey = '$apiKey'
+  alignmentStatsCommand = "samtools stats"
   resultDir = '$clusterResultDir'
   libraryLayout = '$libraryLayout'
   downloadMethod = '$downloadMethod'
@@ -44,10 +48,12 @@ params {
   markerToTaxonPath = '$eukdetectMarkerToTaxonPath'
   bowtie2Command = 'bowtie2 --omit-sec-seq --no-discordant --no-unal -a'
   summarizeAlignmentsCommand = 'marker_alignments --min-read-query-length 60 --min-taxon-num-markers 2 --min-taxon-num-reads 2 --min-taxon-better-marker-cluster-averages-ratio 1.01 --threshold-avg-match-identity-to-call-known-taxon 0.97  --threshold-num-taxa-to-call-unknown-taxon 1 --threshold-num-markers-to-call-unknown-taxon 4     --threshold-num-reads-to-call-unknown-taxon 8'
-
+  summaryFormat = "matrix"
+  summaryColumn = "cpm"
 }
 
 process {
+  container = 'docker://veupathdb/corral'
   executor = '$executor'
   queue = '$queue'
   maxForks = 60
@@ -60,6 +66,10 @@ process {
   withLabel: 'align' {
     errorStrategy = 'finish'
   }
+}
+
+singularity {
+ enabled = true
 }
 ";
   close(F);

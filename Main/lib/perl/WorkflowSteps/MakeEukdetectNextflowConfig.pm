@@ -39,7 +39,7 @@ sub run {
 params {
   inputPath = '$clusterSampleToFastqPath'
   apiKey = '$apiKey'
-  alignmentStatsCommand = "samtools stats"
+  alignmentStatsCommand = \"samtools stats\"
   resultDir = '$clusterResultDir'
   libraryLayout = '$libraryLayout'
   downloadMethod = '$downloadMethod'
@@ -48,8 +48,8 @@ params {
   markerToTaxonPath = '$eukdetectMarkerToTaxonPath'
   bowtie2Command = 'bowtie2 --omit-sec-seq --no-discordant --no-unal -a'
   summarizeAlignmentsCommand = 'marker_alignments --min-read-query-length 60 --min-taxon-num-markers 2 --min-taxon-num-reads 2 --min-taxon-better-marker-cluster-averages-ratio 1.01 --threshold-avg-match-identity-to-call-known-taxon 0.97  --threshold-num-taxa-to-call-unknown-taxon 1 --threshold-num-markers-to-call-unknown-taxon 4     --threshold-num-reads-to-call-unknown-taxon 8'
-  summaryFormat = "matrix"
-  summaryColumn = "cpm"
+  summaryFormat = \"matrix\"
+  summaryColumn = \"cpm\"
 }
 
 process {

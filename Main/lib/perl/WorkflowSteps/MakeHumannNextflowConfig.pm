@@ -34,13 +34,14 @@ sub run {
 "params {
   sampleToFastqsPath = '$clusterSampleToFastqPath' 
   resultDir = '$clusterResultDir'
-  kneaddataCommand = \"kneaddata --trimmomatic ~/lib/Trimmomatic-0.39 --max-memory 3000m --bypass-trf --reference-db ~/kneaddata_databases\"
+  kneaddataCommand = \"kneaddata --trimmomatic /usr/share/java --max-memory 3000m --bypass-trf --reference-db /kneaddata_databases\"
   wgetCommand = \"wget --waitretry=10 --read-timeout=20 --retry-connrefused --tries 3\"
   humannCommand = \"humann --diamond-options \\\" --block-size 1.0 --top 1 --outfmt 6\\\"\"
   functionalUnits = [\"level4ec\"]
 }
 
 process {
+  container = 'docker://veupathdb/humann'
   executor = '$executor'
   queue = '$queue'
   maxForks = 40
@@ -71,6 +72,10 @@ process {
   }
 }
 
+ singularity {
+     enabled = true
+     runOptions = \"--bind ~/humann_databases:/humann_databases --bind ~/kneaddata_databases:/kneaddata_databases\"
+ }
 ";
   close(F);
  }

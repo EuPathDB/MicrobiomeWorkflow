@@ -70,6 +70,7 @@ process {
 
 singularity {
  enabled = true
+ runOptions = \"--bind /project:/project\"
 }
 ";
   close(F);

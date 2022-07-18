@@ -74,7 +74,7 @@ process {
 
  singularity {
      enabled = true
-     runOptions = \"--bind ~/humann_databases:/humann_databases --bind ~/kneaddata_databases:/kneaddata_databases\"
+     runOptions = \"--bind ~/humann_databases:/humann_databases --bind ~/kneaddata_databases:/kneaddata_databases --bind /project:/project\"
  }
 ";
   close(F);

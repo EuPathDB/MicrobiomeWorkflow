@@ -102,6 +102,7 @@
       <paramValue name="pathwayAbundancesFileName">${name}.pathway_abundance.tsv</paramValue>
       <paramValue name="pathwayCoveragesFileName">${name}.pathway_coverage.tsv</paramValue>
       <paramValue name="level4ECsFileName">${name}.level4ec.tsv</paramValue>
+      <paramValue name="isPaired">${isPaired}</paramValue>
       <depends name="MicrobiomeStudy_${name}_copyManualDeliveryFiles"/>
     </subgraph>
 

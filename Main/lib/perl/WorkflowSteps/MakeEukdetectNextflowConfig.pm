@@ -43,7 +43,6 @@ params {
   resultDir = '$clusterResultDir'
   libraryLayout = '$libraryLayout'
   downloadMethod = '$downloadMethod'
-  unpackMethod = '$unpackMethod'
   refdb = '$eukdetectRefdbPath'
   markerToTaxonPath = '$eukdetectMarkerToTaxonPath'
   bowtie2Command = 'bowtie2 --omit-sec-seq --no-discordant --no-unal -a'

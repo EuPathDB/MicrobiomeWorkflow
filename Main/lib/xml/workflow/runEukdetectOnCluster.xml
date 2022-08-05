@@ -30,7 +30,7 @@
     <paramValue name="workingDir">$$analysisDir$$</paramValue>
     <paramValue name="resultsDir">$$analysisDir$$/results</paramValue>
     <paramValue name="nextflowConfigFile">$$analysisDir$$/nextflow.config</paramValue>
-    <paramValue name="nextflowWorkflow">wbazant/marker-alignments-nextflow -r main</paramValue>
+    <paramValue name="nextflowWorkflow">VEuPathDB/CORRAL -r main</paramValue>
     <paramValue name="isGitRepo">true</paramValue>    
     <depends name="mirrorPropsAndSupplementaryDataToCluster"/>
   </step>

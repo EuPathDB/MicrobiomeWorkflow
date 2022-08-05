@@ -9,6 +9,7 @@ use ApiCommonWorkflow::Main::WorkflowSteps::WorkflowStep;
 sub run {
   my ($self, $test, $undo) = @_;
 
+  my $libraryLayout = $self->getParamValue("isPaired") ? "paired" : "single";
   my $configPath = join("/", $self->getWorkflowDataDir(),  $self->getParamValue("analysisDir"), $self->getParamValue("configFileName"));
   my $sampleToFastqPath = join("/", $self->getWorkflowDataDir(), $self->getParamValue("analysisDir"), $self->getParamValue("sampleToFastqFileName"));
 
@@ -17,6 +18,7 @@ sub run {
 
   my $executor = $self->getClusterExecutor();
   my $queue = $self->getClusterQueue();
+  my $apiKey = $self->getConfig('apiKey');
 
   if ($undo) {
     $self->runCmd(0,"rm -rf $configPath");
@@ -32,15 +34,19 @@ sub run {
 # humann memory - it runs diamond which promises to take about six times --block-size in GB
     print F
 "params {
-  sampleToFastqsPath = '$clusterSampleToFastqPath' 
+  inputPath = '$clusterSampleToFastqPath' 
   resultDir = '$clusterResultDir'
-  kneaddataCommand = \"kneaddata --trimmomatic ~/lib/Trimmomatic-0.39 --max-memory 3000m --bypass-trf --reference-db ~/kneaddata_databases\"
-  wgetCommand = \"wget --waitretry=10 --read-timeout=20 --retry-connrefused --tries 3\"
+  kneaddataCommand = \"kneaddata --trimmomatic /usr/share/java --max-memory 3000m --bypass-trf --reference-db /kneaddata_databases\"
+  libraryLayout = '$libraryLayout'
+  unirefXX = \"uniref90\"
+  apiKey = '$apiKey'
   humannCommand = \"humann --diamond-options \\\" --block-size 1.0 --top 1 --outfmt 6\\\"\"
   functionalUnits = [\"level4ec\"]
+  humann_databases = \"/humann_databases\"
 }
 
 process {
+  container = 'docker://veupathdb/humann'
   executor = '$executor'
   queue = '$queue'
   maxForks = 40
@@ -71,6 +77,10 @@ process {
   }
 }
 
+ singularity {
+     enabled = true
+     runOptions = \"--bind ~/humann_databases:/humann_databases --bind ~/kneaddata_databases:/kneaddata_databases --bind /project:/project\"
+ }
 ";
   close(F);
  }

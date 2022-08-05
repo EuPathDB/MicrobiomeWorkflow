@@ -6,12 +6,14 @@
   <param name="pathwayAbundancesFileName"/>
   <param name="pathwayCoveragesFileName"/>
   <param name="level4ECsFileName"/>
+  <param name="isPaired"/>
 
   <step name="makeHumannNextflowConfig" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::MakeHumannNextflowConfig">
     <paramValue name="analysisDir">$$analysisDir$$</paramValue>
     <paramValue name="sampleToFastqFileName">$$sampleToFastqFileName$$</paramValue>
     <paramValue name="clusterResultDir">$$analysisDir$$/results</paramValue>
     <paramValue name="configFileName">nextflow.config</paramValue>
+    <paramValue name="isPaired">$$isPaired$$</paramValue>
   </step>
 
   <step name="mirrorToCluster" stepClass="MicrobiomeWorkflow::Main::MirrorToComputeCluster" stepLoadTypes="toCluster">

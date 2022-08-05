@@ -24,7 +24,8 @@ sub run {
       my $tmp = "$targetDir/tmp." . int(rand(10000));
 
       $self->runCmd(0, "mkdir $tmp");
-      my $from = "cpms.tsv";
+      #my $from = "cpms.tsv";
+      my $from = "cpm.matrix.tsv";
       $self->copyFromCluster("$clusterDir", $from, $tmp, 0);
       $self->runCmd(0, "mv $tmp/$from $targetDir/$cpmsTargetFileName");
 

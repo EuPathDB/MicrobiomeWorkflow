@@ -139,5 +139,27 @@
       <depends name="MicrobiomeStudyEDA_${name}_RSRC_loadEntityTypeAndAttributeGraphs"/>
     </step>
 
+    <step name="MicrobiomeStudyEDA_${name}_RSRC_makeEntityDownloadFiles" 
+          stepClass="ApiCommonWorkflow::Main::WorkflowSteps::InsertEDA">
+    	<paramValue name="plugin">ApiCommonData::Load::Plugin::MakeEntityDownloadFiles</paramValue>
+      <paramValue name="extDbRlsSpec">MicrobiomeStudyEDA_${name}_RSRC|${version}</paramValue>
+      <paramValue name="fileBasename">${name}</paramValue>
+      <paramValue name="webDisplayOntologyName">${owl}</paramValue>
+      <paramValue name="dataDir">MicrobiomeStudyEDA_${name}_RSRC</paramValue>
+      <paramValue name="outputDir"></paramValue>
+    	<paramValue name="schema">EDA</paramValue>
+      <depends name="MicrobiomeStudyEDA_${name}_RSRC_loadDatasetSpecificEntityGraph"/>
+    </step>
+
+    <step name="MicrobiomeStudyEDA_${name}_RSRC_copyEntityDownloadFiles" 
+          stepClass="ApiCommonWorkflow::Main::WorkflowSteps::CopyShinyFilesToDownloadDir">
+      <paramValue name="datasetName">MicrobiomeStudyEDA_${name}_RSRC</paramValue>
+      <paramValue name="inputFileBaseName"></paramValue>
+      <paramValue name="nameForFilenames"></paramValue>
+      <paramValue name="relativeDownloadSiteDir">$$relativeDownloadSiteDir$$</paramValue>
+      <depends name="MicrobiomeStudyEDA_${name}_RSRC_makeEntityDownloadFiles"/>
+      <depends name="makeProjectReleaseDownloadDir"/>
+    </step>
+
   </datasetTemplate>
 </workflowGraph>

@@ -36,13 +36,12 @@ sub run {
 "params {
   inputPath = '$clusterSampleToFastqPath' 
   resultDir = '$clusterResultDir'
-  kneaddataCommand = \"kneaddata --trimmomatic /usr/share/java --max-memory 3000m --bypass-trf --reference-db /kneaddata_databases\"
+  kneaddataCommand = \"kneaddata --trimmomatic /usr/share/java --max-memory 3000m --bypass-trf\"
   libraryLayout = '$libraryLayout'
-  unirefXX = \"uniref90\"
-  apiKey = '$apiKey'
   humannCommand = \"humann --diamond-options \\\" --block-size 1.0 --top 1 --outfmt 6\\\"\"
+  unirefXX = \"uniref90\"
   functionalUnits = [\"level4ec\"]
-  humann_databases = \"/humann_databases\"
+  downloadMethod = \"sra\"
 }
 
 process {
@@ -50,7 +49,7 @@ process {
   executor = '$executor'
   queue = '$queue'
   maxForks = 40
-  withLabel: 'download_and_preprocess' {
+  withName: 'knead' {
     errorStrategy = {
       sleep(Math.pow(2, task.attempt) * 500 as long);
       if (task.exitStatus == 8 || task.exitStatus == 4 || task.attempt < 4 ) {
@@ -58,15 +57,15 @@ process {
       } else {
         return 'finish'
       }
-    }
-    maxRetries = 10
-    maxForks = 5
-    clusterOptions = {
+  }
+  maxRetries = 10
+  maxForks = 5
+  clusterOptions = {
       (task.attempt > 1 && task.exitStatus in 130..140)
         ? '-M 12000 -R \"rusage [mem=12000] span[hosts=1]\"'
         : '-M 4000 -R \"rusage [mem=4000] span[hosts=1]\"'
     }
-  }
+  }  
   withName: 'runHumann' {
     errorStrategy = { task.exitStatus in 130..140 ? 'retry' : 'finish' }
     maxRetries = 2
@@ -79,7 +78,7 @@ process {
 
  singularity {
      enabled = true
-     runOptions = \"--bind ~/humann_databases:/humann_databases --bind ~/kneaddata_databases:/kneaddata_databases --bind /project:/project\"
+     runOptions = \"--bind ~/humann_databases:/humann_databases --bind ~/kneaddata_databases:/kneaddata_databases --bind ~/metaphlan_databases:/usr/local/lib/python3.8/dist-packages/metaphlan/metaphlan_databases --bind /project:/project\"
  }
 ";
   close(F);

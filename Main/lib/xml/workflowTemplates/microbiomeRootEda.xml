@@ -116,6 +116,15 @@
       <depends name="MicrobiomeStudy_${name}_copyManualDeliveryAndInvestigationFiles"/>
     </step>
 
+    <step name="MicrobiomeStudyEDA_${name}_RSRC_owlOverride" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::UpdateOntologySynonym" stepLoadTypes="plugin">
+    	<paramValue name="plugin">GUS::Supported::Plugin::InsertOntologySynonymAttributes</paramValue>
+      <paramValue name="webDisplayOntologyName">MicrobiomeStudyEDA_${name}_RSRC|${version}</paramValue>
+      <paramValue name="attributesFile">owlAttributes.txt</paramValue>
+      <paramValue name="dataDir">MicrobiomeStudyEDA_${name}_RSRC</paramValue>
+      <depends name="MicrobiomeOwlEda_${owl}"/>
+      <depends name="MicrobiomeStudyEDA_${name}_RSRC_insertEntityGraph"/>
+    </step>
+
     <step name="MicrobiomeStudyEDA_${name}_RSRC_loadAttributesFromEntityGraph" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::LoadAttributesFromEntityGraph" stepLoadTypes="sqlldr">
       <paramValue name="logDir">EDA_${name}</paramValue>
       <paramValue name="extDbRlsSpec">MicrobiomeStudyEDA_${name}_RSRC|${version}</paramValue>

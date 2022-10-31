@@ -132,6 +132,7 @@
       <paramValue name="schema">EDA</paramValue>
       <depends name="MicrobiomeOwlEda_${owl}_synonyms"/>
       <depends name="MicrobiomeStudyEDA_${name}_RSRC_insertEntityGraph"/>
+      <depends name="MicrobiomeStudyEDA_${name}_RSRC_owlOverride"/>
     </step>
     
     <step name="MicrobiomeStudyEDA_${name}_RSRC_loadEntityTypeAndAttributeGraphs" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::LoadEntityTypeAndAttributeGraphs" stepLoadTypes="plugin">

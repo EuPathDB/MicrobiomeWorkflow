@@ -18,7 +18,6 @@ sub run {
 
   my $executor = $self->getClusterExecutor();
   my $queue = $self->getClusterQueue();
-  my $apiKey = $self->getConfig('apiKey');
 
   if ($undo) {
     $self->runCmd(0,"rm -rf $configPath");
@@ -36,12 +35,14 @@ sub run {
 "params {
   inputPath = '$clusterSampleToFastqPath' 
   resultDir = '$clusterResultDir'
-  kneaddataCommand = \"kneaddata --trimmomatic /usr/share/java --max-memory 3000m --bypass-trf\"
+  kneaddataCommand = \"kneaddata --trimmomatic /usr/share/java -db /kneaddata_databases/hg37dec --max-memory 3000m --bypass-trf\"
   libraryLayout = '$libraryLayout'
   humannCommand = \"humann --diamond-options \\\" --block-size 1.0 --top 1 --outfmt 6\\\"\"
   unirefXX = \"uniref90\"
-  functionalUnits = [\"level4ec\"]
+  functionalUnits = [\"level4ec\", \"eggnog\",\"go\", \"ko\", \"level4ec\", \"pfam\", \"rxn\"] 
   downloadMethod = \"sra\"
+  mateIds_are_equal = \"True\"
+  query_mate_separator = \".\"
 }
 
 process {

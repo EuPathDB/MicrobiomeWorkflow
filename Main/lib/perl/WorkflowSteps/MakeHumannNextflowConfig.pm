@@ -16,6 +16,14 @@ sub run {
   my $clusterSampleToFastqPath = join("/", $self->getClusterWorkflowDataDir(), $self->getParamValue("analysisDir"), $self->getParamValue("sampleToFastqFileName"));
   my $clusterResultDir = join("/", $self->getClusterWorkflowDataDir(), $self->getParamValue("clusterResultDir"));
 
+  my $downloadMethod = $self->getConfig("downloadMethod");
+  my $mateIdsAreEqual = $self->getConfig("mateIdsAreEqual");
+  my $queryMateSeparator = $self->getConfig("queryMateSeparator");
+  my $humannDatabases = $self->getConfig("humannDatabases");
+  my $metaphlanDatabases = $self->getConfig("metaphlanDatabases");
+  my $kneaddataDatabase = $self->getConfig("kneaddataDatabase");
+  my $decontaminationDir = $self->getConfig("decontaminationDir");
+
   my $executor = $self->getClusterExecutor();
   my $queue = $self->getClusterQueue();
 
@@ -35,14 +43,14 @@ sub run {
 "params {
   inputPath = '$clusterSampleToFastqPath' 
   resultDir = '$clusterResultDir'
-  kneaddataCommand = \"kneaddata --trimmomatic /usr/share/java -db /kneaddata_databases/hg37dec --max-memory 3000m --bypass-trf\"
+  kneaddataCommand = \"kneaddata --trimmomatic /usr/share/java -db /kneaddata_databases/$decontaminationDir --max-memory 3000m --bypass-trf\"
   libraryLayout = '$libraryLayout'
   humannCommand = \"humann --diamond-options \\\" --block-size 1.0 --top 1 --outfmt 6\\\"\"
   unirefXX = \"uniref90\"
-  functionalUnits = [\"level4ec\", \"eggnog\",\"go\", \"ko\", \"level4ec\", \"pfam\", \"rxn\"] 
-  downloadMethod = \"sra\"
-  mateIds_are_equal = \"True\"
-  query_mate_separator = \".\"
+  functionalUnits = [\"level4ec\"] 
+  downloadMethod = '$downloadMethod'
+  mateIds_are_equal = '\"$mateIdsAreEqual\"'
+  query_mate_separator = '\"$queryMateSeparator\"'
 }
 
 process {
@@ -79,7 +87,7 @@ process {
 
  singularity {
      enabled = true
-     runOptions = \"--bind ~/humann_databases:/humann_databases --bind ~/kneaddata_databases:/kneaddata_databases --bind ~/metaphlan_databases:/usr/local/lib/python3.8/dist-packages/metaphlan/metaphlan_databases --bind /project:/project\"
+     runOptions = \"--bind $humannDatabases:/humann_databases --bind $kneaddataDatabase:/kneaddata_databases --bind $metaphlanDatabases:/usr/local/lib/python3.8/dist-packages/metaphlan/metaphlan_databases --bind /project:/project\"
  }
 ";
   close(F);

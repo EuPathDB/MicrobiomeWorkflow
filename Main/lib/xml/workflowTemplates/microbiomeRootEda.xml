@@ -79,11 +79,19 @@
       <depends name="beginMicrobiomeOwls"/>
     </subgraph>
 
-    <step name="MicrobiomeOwlEda_${name}_synonyms" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::LoadAnnotationsAsOntologySynonyms" stepLoadTypes="plugin">
-      <paramValue name="extDbRlsSpec">OntologyTerm_${name}_RSRC|dontcare</paramValue>
-      <paramValue name="attributesFile">OntologyTerm_${name}_RSRC/${name}.eda.txt</paramValue>
-      <depends name="MicrobiomeOwlEda_${name}"/>
-    </step>
+  </datasetTemplate>
+
+  <datasetTemplate class="WebDisplayOntologyEDA">
+    <prop name="name"/>
+    <prop name="sourceFile"/>
+    <prop name="projectName"/>
+
+    <subgraph name="OntologyTerm_${name}_RSRC" xmlFile="loadDataset.xml">
+      <paramValue name="datasetName">OntologyTerm_${name}_RSRC</paramValue>
+      <paramValue name="datasetLoaderXmlFileName">${projectName}.xml</paramValue>
+      <paramValue name="sourceFile"></paramValue>
+      <paramValue name="parentDataDir"></paramValue>
+    </subgraph>
   </datasetTemplate>
 
   <datasetTemplate class="MicrobiomeStudyEda">
@@ -109,20 +117,20 @@
       <paramValue name="sampleDetailsFile">MicrobiomeStudyEDA_${name}_RSRC/final/${name}.txt </paramValue>
       <paramValue name="ontologyMappingFile">OntologyTerm_${owl}_RSRC/${owl}.owl</paramValue>
       <paramValue name="mbioResultsDir">MicrobiomeStudyEDA_${name}_RSRC/final</paramValue>
-      <paramValue name="mbioResultsFileExtensions">'{ampliconTaxa => "lineage_abundance.tsv", wgsTaxa => "metaphlan.tsv", level4ECs => "level4ec.tsv", pathwayAbundances => "pathway_abundance.tsv", pathwayCoverages => "pathway_coverage.tsv", eukdetectCpms => "eukdetect.lineage_abundance.tsv", massSpec => "metabolomics.tsv" }'</paramValue>
+      <paramValue name="mbioResultsFileExtensions">'{ampliconTaxa => "lineage_abundance.tsv", wgsTaxa => "metaphlan.tsv", level4ECs => "level4ec.tsv", pathwayAbundances => "pathway_abundance.tsv", pathwayCoverages => "pathway_coverage.tsv", eukdetectCpms => "eukdetect.lineage_abundance.tsv" }'</paramValue>
       <paramValue name="dieOnFirstError">1</paramValue>
-      <depends name="MicrobiomeOwlEda_${owl}"/>
+      <depends name="OntologyTerm_${owl}_RSRC"/>
 
       <depends name="MicrobiomeStudy_${name}_copyManualDeliveryAndInvestigationFiles"/>
     </step>
 
     <step name="MicrobiomeStudyEDA_${name}_RSRC_owlOverride" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::UpdateOntologySynonym" stepLoadTypes="plugin">
     	<paramValue name="plugin">GUS::Supported::Plugin::InsertOntologySynonymAttributes</paramValue>
-      <paramValue name="webDisplayOntologyName">MicrobiomeStudyEDA_${name}_RSRC|${version}</paramValue>
+      <paramValue name="webDisplayOntologyName">OntologyTerm_${owl}_RSRC|dontcare</paramValue>
       <paramValue name="attributesFile">owlAttributes.txt</paramValue>
       <paramValue name="dataDir">MicrobiomeStudyEDA_${name}_RSRC</paramValue>
       <paramValue name="enableUndo">1</paramValue>
-      <depends name="MicrobiomeOwlEda_${owl}"/>
+      <depends name="OntologyTerm_${owl}_RSRC"/>
       <depends name="MicrobiomeStudyEDA_${name}_RSRC_insertEntityGraph"/>
     </step>
 
@@ -131,7 +139,6 @@
       <paramValue name="extDbRlsSpec">MicrobiomeStudyEDA_${name}_RSRC|${version}</paramValue>
       <paramValue name="ontologyExtDbRlsSpec">OntologyTerm_${owl}_RSRC|dontcare</paramValue>
       <paramValue name="schema">EDA</paramValue>
-      <depends name="MicrobiomeOwlEda_${owl}_synonyms"/>
       <depends name="MicrobiomeStudyEDA_${name}_RSRC_insertEntityGraph"/>
       <depends name="MicrobiomeStudyEDA_${name}_RSRC_owlOverride"/>
     </step>

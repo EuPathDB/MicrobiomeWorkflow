@@ -98,10 +98,10 @@
       <paramValue name="sampleToFastqFileName">${sampleToWgsFastqFileName}</paramValue>
       <paramValue name="analysisDir">otuDADA2_${name}_RSRC/Humann_${name}</paramValue>
       <paramValue name="resultDir">all_results</paramValue>
-      <paramValue name="otuCountsFileName">${name}.wgs.lineage_abundance.tsv</paramValue>
-      <paramValue name="pathwayAbundancesFileName">${name}.pathway_abundance.tsv</paramValue>
-      <paramValue name="pathwayCoveragesFileName">${name}.pathway_coverage.tsv</paramValue>
-      <paramValue name="level4ECsFileName">${name}.level4ec.tsv</paramValue>
+      <paramValue name="otuCountsFileName">${name}.WGS.metaphlan.tsv</paramValue>
+      <paramValue name="pathwayAbundancesFileName">${name}.WGS.pathway_abundance.tsv</paramValue>
+      <paramValue name="pathwayCoveragesFileName">${name}.WGS.pathway_coverage.tsv</paramValue>
+      <paramValue name="level4ECsFileName">${name}.WGS.level4ec.tsv</paramValue>
       <paramValue name="isPaired">${isPaired}</paramValue>
       <depends name="MicrobiomeStudy_${name}_copyManualDeliveryFiles"/>
     </subgraph>
@@ -113,7 +113,7 @@
       <paramValue name="isPaired">${isPaired}</paramValue>
       <paramValue name="unpackMethod">${unpackMethod}</paramValue>
       <paramValue name="downloadMethod">${downloadMethod}</paramValue>
-      <paramValue name="resultFileName">${name}.eukdetect.lineage_abundance.tsv</paramValue>
+      <paramValue name="resultFileName">${name}.WGS.eukdetect.lineage_abundance.tsv</paramValue>
       <paramValue name="eukdetectRefdbPath">EukMarkersReference_RSRC/refdb</paramValue>
       <paramValue name="eukdetectMarkerToTaxonPath">EukMarkersReference_RSRC/marker-to-taxon-id.tsv</paramValue>
       <depends name="MicrobiomeStudy_${name}_copyManualDeliveryFiles"/>
@@ -127,7 +127,7 @@
       <paramValue name="trainingSetPath">rRNAReference_RSRC/trainingSet.fa.gz</paramValue>
       <paramValue name="speciesAssignmentPath">rRNAReference_RSRC/speciesAssignment.fa.gz</paramValue>
       <paramValue name="resultDir">all_results</paramValue>
-      <paramValue name="otuCountsFileName">${name}.16s.lineage_abundance.tsv</paramValue>
+      <paramValue name="otuCountsFileName">${name}.16S.lineage_abundance.tsv</paramValue>
       <paramValue name="version">${version}</paramValue>
       <paramValue name="samplesInfoFileName">${samplesInfoFileName}</paramValue>
       <paramValue name="isPaired">${isPaired}</paramValue>
@@ -144,15 +144,16 @@
       <!-- Also depends on mirrorDADA2TaxonomyToCluster, I think I've forgotten to add it-->
     </subgraph>
 
+<!-- everything from here down is WDK, deprecated --> 
     <step name="insertMBioResults_${name}" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::InsertMBioResults" stepLoadTypes="insertResults">
       <paramValue name="datasetName">otuDADA2_${name}_RSRC</paramValue>
       <paramValue name="insertAmplicon">${runDADA2}</paramValue>
       <paramValue name="insertWGS">${runWGS}</paramValue>
-      <paramValue name="ampliconTaxaPath">all_results/${name}.16s.lineage_abundance.tsv</paramValue>
-      <paramValue name="wgsTaxaPath">all_results/${name}.wgs.lineage_abundance.tsv</paramValue>
-      <paramValue name="pathwayAbundancesPath">all_results/${name}.pathway_abundance.tsv</paramValue>
-      <paramValue name="pathwayCoveragesPath">all_results/${name}.pathway_coverage.tsv</paramValue>
-      <paramValue name="level4ECsPath">all_results/${name}.level4ec.tsv</paramValue>
+      <paramValue name="ampliconTaxaPath">all_results/${name}.16S.lineage_abundance.tsv</paramValue>
+      <paramValue name="wgsTaxaPath">all_results/${name}.WGS.metaphlan.tsv</paramValue>
+      <paramValue name="pathwayAbundancesPath">all_results/${name}.WGS.pathway_abundance.tsv</paramValue>
+      <paramValue name="pathwayCoveragesPath">all_results/${name}.WGS.pathway_coverage.tsv</paramValue>
+      <paramValue name="level4ECsPath">all_results/${name}.WGS.level4ec.tsv</paramValue>
       <depends name="MicrobiomeStudy_${name}_Humann"/>
       <depends name="MicrobiomeStudy_${name}_DADA2"/>
       <dependsGlobal name="taxonomy"/> <!-- study.ProtocolAppNode references sres.OntologyTerm to know the ontology term for "data item"-->
@@ -204,12 +205,12 @@
     <paramValue name="allResultsDir">all_results</paramValue>
     <paramValue name="outputDir">downloadSiteFiles</paramValue>
     <paramValue name="allDatasetsFileName">datasets.txt</paramValue>
-    <paramValue name="ampliconTaxaSuffix">.16s.lineage_abundance.tsv</paramValue>
-    <paramValue name="eukdetectCpmsSuffix">.eukdetect.lineage_abundance.tsv</paramValue>
-    <paramValue name="wgsTaxaSuffix">.wgs.lineage_abundance.tsv</paramValue>
-    <paramValue name="level4ECsSuffix">.level4ec.tsv</paramValue>
-    <paramValue name="pathwayAbundancesSuffix">.pathway_abundance.tsv</paramValue>
-    <paramValue name="pathwayCoveragesSuffix">.pathway_coverage.tsv</paramValue>
+    <paramValue name="ampliconTaxaSuffix">.16S.lineage_abundance.tsv</paramValue>
+    <paramValue name="eukdetectCpmsSuffix">.WGS.eukdetect.lineage_abundance.tsv</paramValue>
+    <paramValue name="wgsTaxaSuffix">.WGS.metaphlan.tsv</paramValue>
+    <paramValue name="level4ECsSuffix">.WGS.level4ec.tsv</paramValue>
+    <paramValue name="pathwayAbundancesSuffix">.WGS.pathway_abundance.tsv</paramValue>
+    <paramValue name="pathwayCoveragesSuffix">.WGS.pathway_coverage.tsv</paramValue>
     <depends name="makeDownloadFileDir"/>
     <depends name="tuningManager"/>
   </step>

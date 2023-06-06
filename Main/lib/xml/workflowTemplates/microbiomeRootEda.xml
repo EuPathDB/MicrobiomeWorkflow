@@ -3,39 +3,22 @@
   <param name="projectVersionForWebsiteFiles"/>
 
  
+  <constant name="dataDir">${parentDataDir}/edaStudies</constant>
 
-  <constant name="relativeWebServicesDir">webServices/$$projectName$$/release-$$projectVersionForWebsiteFiles$$</constant>
   <constant name="relativeDownloadSiteDir">downloadSite/$$projectName$$/release-$$projectVersionForWebsiteFiles$$/</constant>
-  <constant name="relativeAuxiliaryDir">auxiliary/$$projectName$$/release-$$projectVersionForWebsiteFiles$$/</constant>
   <constant name="datasetLoaderXmlFileName">MicrobiomeDB.xml</constant>
-  <step name="initUserGroupProject" 
-	stepClass="ApiCommonWorkflow::Main::WorkflowSteps::InitUserGroupProject">
+
+  <globalSubgraph name="microbiomeGlobalEDA" xmlFile="microbiomeGlobalEDA.xml">
+    <paramValue name="globalDatasetLoaderXmlFile">microbiomeGlobalEDA.xml</paramValue>
     <paramValue name="projectName">$$projectName$$</paramValue>
-  </step>
+  </globalSubgraph>
 
   <step name="makeProjectReleaseDownloadDir" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::InitSiteDir">
     <paramValue name="relativeDir">$$relativeDownloadSiteDir$$</paramValue>
-    <depends name="initUserGroupProject"/>
   </step>
   
-  <step name="makeProjectReleaseWebServicesDir" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::InitSiteDir">
-    <paramValue name="relativeDir">$$relativeWebServicesDir$$</paramValue>
-    <depends name="initUserGroupProject"/>
-  </step>
-  
-  <step name="makeProjectReleaseAuxiliaryDir" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::InitSiteDir">
-    <paramValue name="relativeDir">$$relativeAuxiliaryDir$$</paramValue>
-    <depends name="initUserGroupProject"/>
-  </step>
 
-
-  <subgraph name="Ontology_Relationship_Types_RSRC" xmlFile="loadDataset.xml">
-    <paramValue name="datasetName">Ontology_Relationship_Types_RSRC</paramValue>
-    <paramValue name="datasetLoaderXmlFileName">$$datasetLoaderXmlFileName$$</paramValue>
-    <paramValue name="parentDataDir"></paramValue>
-    <depends name="initUserGroupProject"/>
-  </subgraph>
-
+<!--
     <subgraph name="OBO_Ontology_OBI_RSRC" xmlFile="loadDataset.xml" stepLoadTypes="runPlugin:insertOntologyTermsAndRelationships">
       <paramValue name="datasetName">OBO_Ontology_OBI_RSRC</paramValue>
       <paramValue name="datasetLoaderXmlFileName">$$datasetLoaderXmlFileName$$</paramValue>
@@ -49,14 +32,16 @@
     <paramValue name="parentDataDir"></paramValue>
     <depends name="Ontology_Relationship_Types_RSRC"/>
   </subgraph>
+-->
 
   <subgraph name="taxonomy" xmlFile="loadDataset.xml">
     <paramValue name="datasetName">taxonomy_RSRC</paramValue>
     <paramValue name="datasetLoaderXmlFileName">$$datasetLoaderXmlFileName$$</paramValue>
     <paramValue name="parentDataDir"></paramValue>
-    <depends name="Ontology_Relationship_Types_RSRC"/>
+    <dependsGlobal name="Ontology_Relationship_Types_RSRC"/>
   </subgraph>
 
+<!--
   <step name="beginMicrobiomeOwls" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::DoNothingStep">
     <depends name="initUserGroupProject"/>
     <depends name="Ontology_Relationship_Types_RSRC"/>
@@ -179,5 +164,73 @@
       <depends name="makeProjectReleaseDownloadDir"/>
     </step>
 
+  </datasetTemplate>
+-->
+<!-- ###################################################### -->
+
+  <step name="makeDataDir" stepClass="ReFlow::StepClasses::MakeDataDir">
+    <paramValue name="dataDir">$$dataDir$$</paramValue>
+  </step>
+
+  <datasetTemplate class="MBioNF">
+    <prop name="projectName"/>
+    <prop name="subProjectName"/>
+    <prop name="groupName"/>
+    <prop name="studyName"/>
+    <prop name="version"/>
+    <prop name="webDisplayOntologyName"/>
+    <prop name="nameForFilenames"/>
+
+    <subgraph name="MicrobiomeStudyEDA_${studyName}_RSRC" xmlFile="loadEdaStudy.xml">
+      <paramValue name="datasetName">MicrobiomeStudyEDA_${studyName}_RSRC</paramValue>
+      <paramValue name="datasetLoaderXmlFileName">${projectName}.xml</paramValue>
+      <paramValue name="parentDataDir">$$dataDir$$</paramValue>
+      <paramValue name="datasetVersion">${version}</paramValue>
+      <paramValue name="projectName">${projectName}</paramValue>
+      <paramValue name="webDisplayOntologyName">${webDisplayOntologyName}</paramValue>
+      <paramValue name="webDisplayOntologyFile">ontology/release/production/${webDisplayOntologyName}.owl</paramValue>
+      <paramValue name="speciesReconciliationOntologySpec"></paramValue>
+      <paramValue name="speciesReconciliationFallbackSpecies"></paramValue>
+      <paramValue name="loadStudyCharacteristics">false</paramValue>
+      <paramValue name="context">microbiome</paramValue>
+      <paramValue name="optionalStudyStableId">${studyName}</paramValue>
+      <paramValue name="studyClassificationsYaml"></paramValue>
+      <paramValue name="studyClassificationsOwl"></paramValue>
+      <depends name="makeDataDir"/>
+      <dependsGlobal name="oboOntologies"/>
+      <dependsGlobal name="Ontology_entityTypesAndProtocols_RSRC"/>
+    </subgraph>
+  
+    <step name="MicrobiomeStudyEDA_${studyName}_RSRC_makeEntityDownloadFiles" 
+          stepClass="ApiCommonWorkflow::Main::WorkflowSteps::InsertEDA">
+    	<paramValue name="plugin">ApiCommonData::Load::Plugin::MakeEntityDownloadFiles</paramValue>
+      <paramValue name="extDbRlsSpec">MicrobiomeStudyEDA_${studyName}_RSRC|${version}</paramValue>
+      <paramValue name="fileBasename">${groupName}_${studyName}</paramValue>
+      <paramValue name="webDisplayOntologyName">${webDisplayOntologyName}</paramValue>
+      <paramValue name="dataDir">MicrobiomeStudyEDA_${studyName}_RSRC</paramValue>
+      <paramValue name="outputDir"></paramValue>
+    	<paramValue name="schema">EDA</paramValue>
+      <depends name="MicrobiomeStudyEDA_${studyName}_RSRC"/>
+    </step>
+
+    <step name="MicrobiomeStudyEDA_${studyName}_RSRC_copyEntityDownloadFiles" 
+          stepClass="ApiCommonWorkflow::Main::WorkflowSteps::CopyShinyFilesToDownloadDir">
+      <paramValue name="datasetName">MicrobiomeStudyEDA_${studyName}_RSRC</paramValue> 
+      <paramValue name="nameForFilenames">${nameForFilenames}</paramValue>
+      <paramValue name="inputFileBaseName">MicrobiomeStudyEDA_${studyName}_RSRC</paramValue>
+      <paramValue name="relativeDownloadSiteDir">$$relativeDownloadSiteDir$$</paramValue>
+      <depends name="MicrobiomeStudyEDA_${studyName}_RSRC_makeEntityDownloadFiles"/>
+      <depends name="makeProjectReleaseDownloadDir"/>
+    </step>
+
+    <step name="MicrobiomeStudyEDA_${studyName}_RSRC_manualDownloadFiles"
+          stepClass="ApiCommonWorkflow::Main::WorkflowSteps::CopyDownloadFilesDirFromManualDelivery">
+      <paramValue name="projectName">${projectName}</paramValue>
+      <paramValue name="datasetName">MicrobiomeStudyEDA_${studyName}_RSRC</paramValue>
+      <paramValue name="relativeManualDeliveryDir">${subProjectName}/${groupName}/${studyName}/${version}/final/downloadSiteFiles</paramValue>
+      <paramValue name="relativeDownloadSiteDir">$$relativeDownloadSiteDir$$</paramValue>
+      <depends name="makeProjectReleaseDownloadDir"/>
+      <depends name="MicrobiomeStudyEDA_${studyName}_RSRC_copyEntityDownloadFiles"/>
+    </step>
   </datasetTemplate>
 </workflowGraph>

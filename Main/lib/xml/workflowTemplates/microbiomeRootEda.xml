@@ -8,17 +8,17 @@
   <constant name="relativeDownloadSiteDir">downloadSite/$$projectName$$/release-$$projectVersionForWebsiteFiles$$/</constant>
   <constant name="datasetLoaderXmlFileName">MicrobiomeDB.xml</constant>
 
-  <globalSubgraph name="microbiomeGlobalEDA" xmlFile="microbiomeGlobalEDA.xml">
-    <paramValue name="globalDatasetLoaderXmlFile">microbiomeGlobalEDA.xml</paramValue>
-    <paramValue name="projectName">$$projectName$$</paramValue>
-  </globalSubgraph>
-
   <step name="makeProjectReleaseDownloadDir" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::InitSiteDir">
     <paramValue name="relativeDir">$$relativeDownloadSiteDir$$</paramValue>
   </step>
   
 
 <!--
+  <globalSubgraph name="microbiomeGlobalEDA" xmlFile="microbiomeGlobalEDA.xml">
+    <paramValue name="globalDatasetLoaderXmlFile">microbiomeGlobalEDA.xml</paramValue>
+    <paramValue name="projectName">$$projectName$$</paramValue>
+  </globalSubgraph>
+
     <subgraph name="OBO_Ontology_OBI_RSRC" xmlFile="loadDataset.xml" stepLoadTypes="runPlugin:insertOntologyTermsAndRelationships">
       <paramValue name="datasetName">OBO_Ontology_OBI_RSRC</paramValue>
       <paramValue name="datasetLoaderXmlFileName">$$datasetLoaderXmlFileName$$</paramValue>
@@ -32,7 +32,6 @@
     <paramValue name="parentDataDir"></paramValue>
     <depends name="Ontology_Relationship_Types_RSRC"/>
   </subgraph>
--->
 
   <subgraph name="taxonomy" xmlFile="loadDataset.xml">
     <paramValue name="datasetName">taxonomy_RSRC</paramValue>
@@ -40,6 +39,7 @@
     <paramValue name="parentDataDir"></paramValue>
     <dependsGlobal name="Ontology_Relationship_Types_RSRC"/>
   </subgraph>
+-->
 
 <!--
   <step name="beginMicrobiomeOwls" stepClass="ApiCommonWorkflow::Main::WorkflowSteps::DoNothingStep">
@@ -197,10 +197,13 @@
       <paramValue name="studyClassificationsYaml"></paramValue>
       <paramValue name="studyClassificationsOwl"></paramValue>
       <depends name="makeDataDir"/>
+<!--
       <dependsGlobal name="oboOntologies"/>
       <dependsGlobal name="Ontology_entityTypesAndProtocols_RSRC"/>
+-->
     </subgraph>
   
+<!--
     <step name="MicrobiomeStudyEDA_${studyName}_RSRC_makeEntityDownloadFiles" 
           stepClass="ApiCommonWorkflow::Main::WorkflowSteps::InsertEDA">
     	<paramValue name="plugin">ApiCommonData::Load::Plugin::MakeEntityDownloadFiles</paramValue>
@@ -232,5 +235,6 @@
       <depends name="makeProjectReleaseDownloadDir"/>
       <depends name="MicrobiomeStudyEDA_${studyName}_RSRC_copyEntityDownloadFiles"/>
     </step>
+-->
   </datasetTemplate>
 </workflowGraph>

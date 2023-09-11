@@ -196,6 +196,7 @@
       <paramValue name="optionalStudyStableId">${studyName}</paramValue>
       <paramValue name="studyClassificationsYaml"></paramValue>
       <paramValue name="studyClassificationsOwl"></paramValue>
+    	<paramValue name="schema">EDA</paramValue>
       <depends name="makeDataDir"/>
 <!--
       <dependsGlobal name="oboOntologies"/>
@@ -215,17 +216,19 @@
     	<paramValue name="schema">EDA</paramValue>
       <depends name="MicrobiomeStudyEDA_${studyName}_RSRC"/>
     </step>
+-->
 
     <step name="MicrobiomeStudyEDA_${studyName}_RSRC_copyEntityDownloadFiles" 
           stepClass="ApiCommonWorkflow::Main::WorkflowSteps::CopyShinyFilesToDownloadDir">
       <paramValue name="datasetName">MicrobiomeStudyEDA_${studyName}_RSRC</paramValue> 
       <paramValue name="nameForFilenames">${nameForFilenames}</paramValue>
+      <paramValue name="filePath">edaStudies/MicrobiomeStudyEDA_${studyName}_RSRC/annPropsAndArtifacts/results</paramValue>
       <paramValue name="inputFileBaseName">MicrobiomeStudyEDA_${studyName}_RSRC</paramValue>
       <paramValue name="relativeDownloadSiteDir">$$relativeDownloadSiteDir$$</paramValue>
-      <depends name="MicrobiomeStudyEDA_${studyName}_RSRC_makeEntityDownloadFiles"/>
+      <depends name="MicrobiomeStudyEDA_${studyName}_RSRC"/>
       <depends name="makeProjectReleaseDownloadDir"/>
     </step>
-
+<!-- MicrobiomeDB doesn't have these 
     <step name="MicrobiomeStudyEDA_${studyName}_RSRC_manualDownloadFiles"
           stepClass="ApiCommonWorkflow::Main::WorkflowSteps::CopyDownloadFilesDirFromManualDelivery">
       <paramValue name="projectName">${projectName}</paramValue>
@@ -237,4 +240,32 @@
     </step>
 -->
   </datasetTemplate>
+<!-- Experimental megastudy
+  <datasetTemplate class="EDAMegaStudyMicrobiome">
+    <prop name="projectName"/>
+    <prop name="studyStableId"/>
+    <prop name="version"/>
+    <prop name="webDisplayOntologyName"/>
+
+    <subgraph name="EDAMegaStudy_${studyStableId}_RSRC" xmlFile="loadEdaStudy.xml">
+      <paramValue name="datasetName">EDAMegaStudy_${studyStableId}_RSRC</paramValue>
+      <paramValue name="datasetLoaderXmlFileName">${projectName}.xml</paramValue>
+      <paramValue name="parentDataDir">$$dataDir$$</paramValue>
+      <paramValue name="datasetVersion">${version}</paramValue>
+      <paramValue name="projectName">${projectName}</paramValue>
+      <paramValue name="webDisplayOntologyName">${webDisplayOntologyName}</paramValue>
+      <paramValue name="speciesReconciliationOntologySpec"></paramValue>
+      <paramValue name="speciesReconciliationFallbackSpecies"></paramValue>
+      <paramValue name="optionalStudyStableId">${studyStableId}</paramValue>
+      <paramValue name="loadStudyCharacteristics">false</paramValue>
+      <paramValue name="studyClassificationsYaml"></paramValue>
+      <paramValue name="studyClassificationsOwl"></paramValue>
+      <paramValue name="context">mega</paramValue>
+      <dependsPattern name="MicrobiomeStudyEDA_BONUS*"/>
+      <dependsPattern name="MicrobiomeStudyEDA_Ciara_V1V3*"/>
+      <dependsPattern name="MicrobiomeStudyEDA_Ciara_V4*"/>
+      <dependsPattern name="MicrobiomeStudyEDA_DailyBaby*"/>
+    </subgraph>
+  </datasetTemplate>
+-->
 </workflowGraph>

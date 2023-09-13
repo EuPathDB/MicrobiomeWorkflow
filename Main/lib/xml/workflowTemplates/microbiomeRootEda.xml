@@ -66,19 +66,20 @@
 
   </datasetTemplate>
 
+-->
   <datasetTemplate class="WebDisplayOntologyEDA">
     <prop name="name"/>
     <prop name="sourceFile"/>
     <prop name="projectName"/>
 
     <subgraph name="OntologyTerm_${name}_RSRC" xmlFile="loadDataset.xml">
-      <paramValue name="datasetName">OntologyTerm_${name}_RSRC</paramValue>
+      <paramValue name="datasetName">${name}</paramValue>
       <paramValue name="datasetLoaderXmlFileName">${projectName}.xml</paramValue>
-      <paramValue name="sourceFile"></paramValue>
+      <paramValue name="sourceFile">${sourceFile}</paramValue>
       <paramValue name="parentDataDir"></paramValue>
     </subgraph>
   </datasetTemplate>
-
+<!--
   <datasetTemplate class="MicrobiomeStudyEda">
     <prop name="name"/>
     <prop name="version"/>
@@ -196,6 +197,7 @@
       <paramValue name="optionalStudyStableId">${studyName}</paramValue>
       <paramValue name="studyClassificationsYaml"></paramValue>
       <paramValue name="studyClassificationsOwl"></paramValue>
+      <paramValue name="downloadFileBaseName">${studyName}</paramValue> 
     	<paramValue name="schema">EDA</paramValue>
       <depends name="makeDataDir"/>
 <!--

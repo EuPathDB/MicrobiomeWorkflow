@@ -1,0 +1,50 @@
+<workflowGraph name="runNfCoreFuncscanOnCluster">
+  <param name="memoryInGb"/>
+  <param name="nextflowTowerAccessToken"/>
+  <param name="nextflowTowerWorkspaceId"/>
+  <param name="sampleToFastqFileName"/>
+  <param name="analysisDir"/>
+  <param name="resultDir"/>
+
+  <step name="makeNfCoreFuncscanPMACSConfig" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::MakeNfCorePMACSConfig">
+    <paramValue name="analysisDir">$$analysisDir$$</paramValue>
+    <paramValue name="clusterResultDir">$$analysisDir$$/results</paramValue>
+    <paramValue name="configFileName">nextflow.config</paramValue>
+    <paramValue name="memoryInGb">$$memoryInGb</paramValue>
+    <paramValue name="nextflowTowerAccessToken">$$nextflowTowerAccessToken</paramValue>
+    <paramValue name="nextflowTowerWorkspaceId">$$nextflowTowerWorkspaceId</paramValue>
+  </step>
+
+  <!-- TODO this needs to make a samplesheet based on the outputs of mag -->
+  <!-- TODO figure out what sampleToFastqFileName really is, and how to use it, then write this perl module -->
+  <step name="makeNfCoreFuncscanSamplesheet" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::MakeNfCoreFuncscanSamplesheet">
+    <paramValue name="sampleToFastqFileName">$$sampleToFastqFileName</paramValue>
+  <!-- that also means the outputs of mag need to stay on the cluster until funcscan is done w them i suppose -->
+  <!-- OR the mirrorToCluster step just below needs to send the outputs back to the same cluster they just left  -->
+  <!-- does the dependency on mag outputs mean this should be a single subgraph?? -->
+  <!-- TODO write a params.json for the pipeline specific args. figure it out for mag first i suppose -->
+  <!-- TODO also some ref dbs to manage here, figure that out for mag first though and use same strategy here -->
+
+  <step name="mirrorToCluster" stepClass="MicrobiomeWorkflow::Main::MirrorToComputeCluster" stepLoadTypes="toCluster">
+    <paramValue name="fileOrDirToMirror">$$analysisDir$$</paramValue>
+    <depends name="makeNfCoreFuncscanPMACSConfig"/>
+    <depends name="makeNfCoreFuncscanSamplesheet"/>
+  </step>
+
+  <step name="runClusterTask" stepClass="ReFlow::StepClasses::RunAndMonitorNextflow">
+    <paramValue name="workingDir">$$analysisDir$$</paramValue>
+    <paramValue name="resultsDir">$$analysisDir$$/results</paramValue>
+    <paramValue name="nextflowConfigFile">$$analysisDir$$/nextflow.config</paramValue>
+    <paramValue name="nextflowWorkflow">nf-core/funcscan</paramValue>
+    <paramValue name="isNfCoreWorkflow">true</paramValue>    
+    <depends name="mirrorToCluster"/>
+  </step>
+
+  <!-- TODO figure out what all needs retrieved, then write this perl module -->
+  <step name="retrieveNfCoreFuncscanResultsFromComputeCluster" stepClass="MicrobiomeWorkflow::Main::RetrieveNfCoreFuncscanResultsFromComputeCluster" stepLoadTypes="fromCluster">
+    <paramValue name="clusterDir">$$analysisDir$$/results</paramValue>
+    <paramValue name="targetDir">$$resultDir$$</paramValue>
+    <depends name="runClusterTask"/>
+  </step>
+</workflowGraph>
+

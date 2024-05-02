@@ -1,0 +1,51 @@
+<workflowGraph name="runNfCoreMagOnCluster">
+  <param name="memoryInGb"/>
+  <param name="nextflowTowerAccessToken"/>
+  <param name="nextflowTowerWorkspaceId"/>
+  <param name="sampleToFastqFileName"/>
+  <param name="analysisDir"/>
+  <param name="resultDir"/>
+
+  <step name="makeNfCoreMagPMACSConfig" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::MakeNfCorePMACSConfig">
+    <paramValue name="analysisDir">$$analysisDir$$</paramValue>
+    <paramValue name="clusterResultDir">$$analysisDir$$/results</paramValue>
+    <paramValue name="configFileName">nextflow.config</paramValue>
+    <paramValue name="memoryInGb">$$memoryInGb</paramValue>
+    <paramValue name="nextflowTowerAccessToken">$$nextflowTowerAccessToken</paramValue>
+    <paramValue name="nextflowTowerWorkspaceId">$$nextflowTowerWorkspaceId</paramValue>
+  </step>
+
+  <!-- TODO figure out what sampleToFastqFileName really is, and how to use it, then write this perl module -->
+  <step name="makeNfCoreMagSamplesheet" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::MakeNfCoreMagSamplesheet">
+    <paramValue name="sampleToFastqFileName">$$sampleToFastqFileName</paramValue>
+
+  <!-- TODO we may also need a params.json or to add things like skip spades and concoct to the config file-->
+      <!-- if adding to config, then that module needs to be pipeline specific rather than for all nf-core pipelines-->
+  <!-- TODO we need to add the kraken ref db to manualDelivery, move it here, have the run step depend on it-->
+  <!-- TODO can we set a central place on pmacs where we keep stable ref dbs ?? -->
+      <!-- I dont want to have to copy the same one around all the time, or have the dev/ data loader manage it-->
+      <!-- could this even be a global step of the workflow or something?? did dada2 do something like that? -->
+
+  <step name="mirrorToCluster" stepClass="MicrobiomeWorkflow::Main::MirrorToComputeCluster" stepLoadTypes="toCluster">
+    <paramValue name="fileOrDirToMirror">$$analysisDir$$</paramValue>
+    <depends name="makeNfCoreMagPMACSConfig"/>
+    <depends name="makeNfCoreMagSamplesheet"/>
+  </step>
+
+  <step name="runClusterTask" stepClass="ReFlow::StepClasses::RunAndMonitorNextflow">
+    <paramValue name="workingDir">$$analysisDir$$</paramValue>
+    <paramValue name="resultsDir">$$analysisDir$$/results</paramValue>
+    <paramValue name="nextflowConfigFile">$$analysisDir$$/nextflow.config</paramValue>
+    <paramValue name="nextflowWorkflow">nf-core/mag</paramValue>
+    <paramValue name="isNfCoreWorkflow">true</paramValue>    
+    <depends name="mirrorToCluster"/>
+  </step>
+
+  <!-- TODO write this perl module, figure out what all dirs we want to copy back-->
+  <step name="retrieveNfCoreMagResultsFromComputeCluster" stepClass="MicrobiomeWorkflow::Main::RetrieveNfCoreMagResultsFromComputeCluster" stepLoadTypes="fromCluster">
+    <paramValue name="clusterDir">$$analysisDir$$/results</paramValue>
+    <paramValue name="targetDir">$$resultDir$$</paramValue>
+    <depends name="runClusterTask"/>
+  </step>
+</workflowGraph>
+

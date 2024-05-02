@@ -144,6 +144,28 @@
       <!-- Also depends on mirrorDADA2TaxonomyToCluster, I think I've forgotten to add it-->
     </subgraph>
 
+    <!-- subraph should make the samplesheet.csv and nextflow.config -->
+    <subgraph name="MicrobiomeStudy_${name}_mag" xmlFile="runNfCoreMagOnCluster.xml" includeIf="${runWGS}" skipIfFile="TODO">
+      <paramValue name="sampleToFastqFileName">${sampleToWgsFastqFileName}</paramValue>
+      <paramValue name="analysisDir">otuDADA2_${name}_RSRC/Eukdetect_${name}</paramValue>
+      <paramValue name="resultDir">all_results</paramValue>
+      <paramValue name="memoryInGb">80</paramValue>
+      <paramValue name="nextflowTowerAccessToken">${nextflowTowerAccessToken}</paramValue>
+      <paramValue name="nextflowTowerWorkspaceId">${nextflowTowerWorkspaceId}</paramValue>
+      <depends name="MicrobiomeStudy_${name}_copyManualDeliveryFiles"/>
+    </subgraph>
+
+    <!-- subraph should make the samplesheet.csv and nextflow.config -->
+    <subgraph name="MicrobiomeStudy_${name}_funcscan" xmlFile="runNfCoreFunscanOnCluster.xml" includeIf="${runWGS}" skipIfFile="TODO">
+      <paramValue name="sampleToFastqFileName">${sampleToWgsFastqFileName}</paramValue>
+      <paramValue name="analysisDir">otuDADA2_${name}_RSRC/Eukdetect_${name}</paramValue>
+      <paramValue name="resultDir">all_results</paramValue>
+      <paramValue name="memoryInGb">40</paramValue>
+      <paramValue name="nextflowTowerAccessToken">${nextflowTowerAccessToken}</paramValue>
+      <paramValue name="nextflowTowerWorkspaceId">${nextflowTowerWorkspaceId}</paramValue>
+      <depends name="MicrobiomeStudy_${name}_copyManualDeliveryFiles"/>
+    </subgraph>
+
 <!-- everything from here down is WDK, deprecated --> 
     <step name="insertMBioResults_${name}" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::InsertMBioResults" stepLoadTypes="insertResults">
       <paramValue name="datasetName">otuDADA2_${name}_RSRC</paramValue>

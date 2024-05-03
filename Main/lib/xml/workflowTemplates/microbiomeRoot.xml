@@ -1,7 +1,7 @@
 <workflowGraph name="">
   <param name="projectName"/>
   <param name="projectVersionForWebsiteFiles"/>
- 
+
 
   <constant name="relativeWebServicesDir">webServices/$$projectName$$/release-$$projectVersionForWebsiteFiles$$</constant>
   <constant name="relativeDownloadSiteDir">downloadSite/$$projectName$$/release-$$projectVersionForWebsiteFiles$$/</constant>
@@ -30,6 +30,7 @@
     <dependsGlobal name="initUserGroupProject"/>
   </step>
 
+  <!-- general comment that id like to find a better way to manage the ref dbs than this -->
   <subgraph name="rRNAReference" xmlFile="loadDataset.xml">
     <paramValue name="datasetName">rRNAReference_RSRC</paramValue>
     <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
@@ -42,6 +43,12 @@
     <paramValue name="parentDataDir"></paramValue>
   </subgraph>
 
+  <!-- TODO download this, add it to manualDelivery and MicrobiomeDatasets, probably Presenters -->
+  <subgraph name="KrakenReferenceDB" xmlFile="loadDataset.xml">
+    <paramValue name="datasetName">KrakenReferenceDB_RSRC</paramValue>
+    <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
+    <paramValue name="parentDataDir"></paramValue>
+
   <step name="mirrorDADA2TaxonomyToCluster" stepClass="ReFlow::StepClasses::MirrorToComputeCluster" stepLoadTypes="toCluster">
     <paramValue name="fileOrDirToMirror">rRNAReference_RSRC</paramValue>
     <depends name="rRNAReference"/>
@@ -51,6 +58,12 @@
   <step name="mirrorEukMarkersReferenceToCluster" stepClass="ReFlow::StepClasses::MirrorToComputeCluster" stepLoadTypes="toCluster">
     <paramValue name="fileOrDirToMirror">EukMarkersReference_RSRC</paramValue>
     <depends name="EukMarkersReference"/>
+    <dependsGlobal name="initClusterHomeDir"/>
+  </step>
+
+  <step name="mirrorKrakenReferenceDBToCluster" stepClass="ReFlow::StepClasses::MirrorToComputeCluster" stepLoadTypes="toCluster">
+    <paramValue name="fileOrDirToMirror">KrakenReferenceDB_RSRC</paramValue>
+    <depends name="KrakenReferenceDB"/>
     <dependsGlobal name="initClusterHomeDir"/>
   </step>
 
@@ -83,6 +96,8 @@
     <prop name="mergeTechReps"/>
     <prop name="sampleToWgsFastqFileName"/>
     <prop name="sraSampleAndRunIdsFileName"/>
+    <prop name="nextflowTowerAccessToken"/>
+    <prop name="nextflowTowerWorkspaceId"/>
 
     <subgraph name="MicrobiomeStudy_${name}_copyManualDeliveryFiles" xmlFile="loadDataset.xml">
       <paramValue name="parentDataDir"></paramValue>
@@ -144,6 +159,34 @@
       <!-- Also depends on mirrorDADA2TaxonomyToCluster, I think I've forgotten to add it-->
     </subgraph>
 
+    <!-- TODO once we get the kraken db in manual delivery, provide a name properly here -->
+    <!-- TODO we should add a gtdb-tk ref db here as well -->
+    <subgraph name="MicrobiomeStudy_${name}_mag" xmlFile="runNfCoreMagOnCluster.xml" includeIf="${runWGS}" skipIfFile="TODO">
+      <paramValue name="sampleToFastqFileName">${sampleToWgsFastqFileName}</paramValue>
+      <paramValue name="analysisDir">otuDADA2_${name}_RSRC/MAG_${name}</paramValue>
+      <paramValue name="resultDir">all_results</paramValue>
+      <paramValue name="krakenDB">KrakenReferenceDB_RSRC/TODO</paramValue>
+      <paramValue name="memoryInGb">80</paramValue>
+      <paramValue name="nextflowTowerAccessToken">${nextflowTowerAccessToken}</paramValue>
+      <paramValue name="nextflowTowerWorkspaceId">${nextflowTowerWorkspaceId}</paramValue>
+      <paramValue name="pipelineVersion">2.5.4</paramValue>
+      <paramValue name="isPaired">${isPaired}</paramValue>
+      <depends name="MicrobiomeStudy_${name}_copyManualDeliveryFiles"/>
+    </subgraph>
+
+    <!-- TODO figure what all ref dbs we need here and add them -->
+    <subgraph name="MicrobiomeStudy_${name}_funcscan" xmlFile="runNfCoreFunscanOnCluster.xml" includeIf="${runWGS}" skipIfFile="TODO">
+      <paramValue name="sampleToFastqFileName">${sampleToWgsFastqFileName}</paramValue>
+      <paramValue name="magAnalysisDir">otuDADA2_${name}_RSRC/MAG_${name}</paramValue>
+      <paramValue name="analysisDir">otuDADA2_${name}_RSRC/Funcscan_${name}</paramValue>
+      <paramValue name="resultDir">all_results</paramValue>
+      <paramValue name="memoryInGb">40</paramValue>
+      <paramValue name="nextflowTowerAccessToken">${nextflowTowerAccessToken}</paramValue>
+      <paramValue name="nextflowTowerWorkspaceId">${nextflowTowerWorkspaceId}</paramValue>
+      <paramValue name="pipelineVersion">1.1.5</paramValue>
+      <depends name="MicrobiomeStudy_${name}_mag"/>
+    </subgraph>
+
 <!-- everything from here down is WDK, deprecated --> 
     <step name="insertMBioResults_${name}" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::InsertMBioResults" stepLoadTypes="insertResults">
       <paramValue name="datasetName">otuDADA2_${name}_RSRC</paramValue>
@@ -159,7 +202,7 @@
       <dependsGlobal name="taxonomy"/> <!-- study.ProtocolAppNode references sres.OntologyTerm to know the ontology term for "data item"-->
     </step>
   </datasetTemplate>
- 
+
   <subgraph name="crossStudyCard" xmlFile="loadDataset.xml">
     <paramValue name="datasetName">CrossStudy_RSRC</paramValue>
     <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
@@ -167,15 +210,15 @@
     <dependsPattern name="insertMBioResults_*"/>
   </subgraph>
 
-   <subgraph name="createLineageTaxonLinkingTable" xmlFile="loadDataset.xml">
+  <subgraph name="createLineageTaxonLinkingTable" xmlFile="loadDataset.xml">
     <paramValue name="datasetName">LineageTaxonLinkingTable_RSRC</paramValue>
     <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
     <paramValue name="parentDataDir"></paramValue>
     <dependsPattern name="insertMBioResults_*"/>
     <dependsGlobal name="taxonomy"/>
-   </subgraph>
+  </subgraph>
 
- <subgraph name="ISASimpleMicrobiome" xmlFile="loadDataset.xml">
+  <subgraph name="ISASimpleMicrobiome" xmlFile="loadDataset.xml">
     <paramValue name="datasetName">ISASimple_RSRC</paramValue>
     <paramValue name="datasetLoaderXmlFileName">$$projectName$$.xml</paramValue>
     <paramValue name="parentDataDir"></paramValue>

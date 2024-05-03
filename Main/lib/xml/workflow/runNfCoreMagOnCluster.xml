@@ -1,0 +1,53 @@
+<workflowGraph name="runNfCoreMagOnCluster">
+  <param name="memoryInGb"/>
+  <param name="nextflowTowerAccessToken"/>
+  <param name="nextflowTowerWorkspaceId"/>
+  <param name="sampleToFastqFileName"/>
+  <param name="analysisDir"/>
+  <param name="resultDir"/>
+  <param name="krakenDB"/>
+  <param name="pipelineVersion"/>
+  <param name="isPaired"/>
+
+  <step name="makeNfCoreMagPMACSConfig" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::MakeNfCorePMACSConfig">
+    <paramValue name="analysisDir">$$analysisDir$$</paramValue>
+    <paramValue name="clusterResultDir">$$analysisDir$$/results</paramValue>
+    <paramValue name="configFileName">nextflow.config</paramValue>
+    <paramValue name="memoryInGb">$$memoryInGb</paramValue>
+    <paramValue name="nextflowTowerAccessToken">$$nextflowTowerAccessToken</paramValue>
+    <paramValue name="nextflowTowerWorkspaceId">$$nextflowTowerWorkspaceId</paramValue>
+  </step>
+
+  <step name="makeNfCoreMagSamplesheet" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::MakeNfCoreMagSamplesheet">
+    <paramValue name="analysisDir">$$analysisDir$$</paramValue>
+    <paramValue name="sampleToFastqFileName">$$sampleToFastqFileName</paramValue>
+
+  <step name="makeNfCoreMagParamsFile" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::MakeNfCoreMagParamsFile">
+    <paramValue name="analysisDir">$$analysisDir$$</paramValue>
+    <paramValue name="krakenDB">$$krakenDB$$</paramValue>
+    <paramValue name="isPaired">$$isPaired$$</paramValue>
+
+  <step name="mirrorToCluster" stepClass="MicrobiomeWorkflow::Main::MirrorToComputeCluster" stepLoadTypes="toCluster">
+    <paramValue name="fileOrDirToMirror">$$analysisDir$$</paramValue>
+    <depends name="makeNfCoreMagPMACSConfig"/>
+    <depends name="makeNfCoreMagSamplesheet"/>
+    <depends name="makeNfCoreMagParamsFile"/>
+  </step>
+
+  <step name="runClusterTask" stepClass="ReFlow::StepClasses::RunAndMonitorNextflow">
+    <paramValue name="workingDir">$$analysisDir$$</paramValue>
+    <paramValue name="resultsDir">$$analysisDir$$/results</paramValue>
+    <paramValue name="nextflowConfigFile">$$analysisDir$$/nextflow.config</paramValue>
+    <paramValue name="nextflowParamsFile">$$analysisDir$$/nf-params.json</paramValue>
+    <paramValue name="nextflowWorkflow">nf-core/mag</paramValue>
+    <paramValue name="isNfCoreWorkflow">true</paramValue>
+    <paramValue name="pipelineVersion">$$pipelineVersion$$</paramValue>
+    <depends name="mirrorToCluster"/>
+  </step>
+
+  <step name="retrieveNfCoreMagResultsFromComputeCluster" stepClass="MicrobiomeWorkflow::Main::RetrieveNfCoreMagResultsFromComputeCluster" stepLoadTypes="fromCluster">
+    <paramValue name="clusterDir">$$analysisDir$$/results</paramValue>
+    <paramValue name="targetDir">$$resultDir$$</paramValue>
+    <depends name="runClusterTask"/>
+  </step>
+</workflowGraph>

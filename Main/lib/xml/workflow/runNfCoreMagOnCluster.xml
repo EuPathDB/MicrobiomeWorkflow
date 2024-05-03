@@ -6,6 +6,7 @@
   <param name="analysisDir"/>
   <param name="resultDir"/>
   <param name="krakenDB"/>
+  <param name="pipelineVersion"/>
 
   <step name="makeNfCoreMagPMACSConfig" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::MakeNfCorePMACSConfig">
     <paramValue name="analysisDir">$$analysisDir$$</paramValue>
@@ -37,7 +38,8 @@
     <paramValue name="nextflowConfigFile">$$analysisDir$$/nextflow.config</paramValue>
     <paramValue name="nextflowParamsFile">$$analysisDir$$/nf-params.json</paramValue>
     <paramValue name="nextflowWorkflow">nf-core/mag</paramValue>
-    <paramValue name="isNfCoreWorkflow">true</paramValue>    
+    <paramValue name="isNfCoreWorkflow">true</paramValue>
+    <paramValue name="pipelineVersion">$$pipelineVersion$$</paramValue>
     <depends name="mirrorToCluster"/>
   </step>
 

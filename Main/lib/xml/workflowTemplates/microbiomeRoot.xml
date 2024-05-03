@@ -159,8 +159,6 @@
       <!-- Also depends on mirrorDADA2TaxonomyToCluster, I think I've forgotten to add it-->
     </subgraph>
 
-    <!-- TODO consider putting specific versions of workflows here, to prevent breakage -->
-    <!-- that would mean an update in reflow too, to the -r flag launching the nextflow bsub -->
     <!-- TODO once we get the kraken db in manual delivery, provide a name properly here -->
     <!-- TODO we should add a gtdb-tk ref db here as well -->
     <!-- TODO this should gain the isPaired param as well, and update nf-params.json -->
@@ -172,6 +170,7 @@
       <paramValue name="memoryInGb">80</paramValue>
       <paramValue name="nextflowTowerAccessToken">${nextflowTowerAccessToken}</paramValue>
       <paramValue name="nextflowTowerWorkspaceId">${nextflowTowerWorkspaceId}</paramValue>
+      <paramValue name="pipelineVersion">2.5.4</paramValue>
       <depends name="MicrobiomeStudy_${name}_copyManualDeliveryFiles"/>
     </subgraph>
 
@@ -185,6 +184,7 @@
       <paramValue name="memoryInGb">40</paramValue>
       <paramValue name="nextflowTowerAccessToken">${nextflowTowerAccessToken}</paramValue>
       <paramValue name="nextflowTowerWorkspaceId">${nextflowTowerWorkspaceId}</paramValue>
+      <paramValue name="pipelineVersion">1.1.5</paramValue>
       <depends name="MicrobiomeStudy_${name}_mag"/>
     </subgraph>
 

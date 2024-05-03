@@ -7,6 +7,7 @@
   <param name="resultDir"/>
   <param name="krakenDB"/>
   <param name="pipelineVersion"/>
+  <param name="isPaired"/>
 
   <step name="makeNfCoreMagPMACSConfig" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::MakeNfCorePMACSConfig">
     <paramValue name="analysisDir">$$analysisDir$$</paramValue>
@@ -18,12 +19,13 @@
   </step>
 
   <step name="makeNfCoreMagSamplesheet" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::MakeNfCoreMagSamplesheet">
-    <paramValue name="analysisDir"></paramValue>
+    <paramValue name="analysisDir">$$analysisDir$$</paramValue>
     <paramValue name="sampleToFastqFileName">$$sampleToFastqFileName</paramValue>
 
   <step name="makeNfCoreMagParamsFile" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::MakeNfCoreMagParamsFile">
-    <paramValue name="analysisDir"></paramValue>
-    <paramValue name="krakenDB"></paramValue>
+    <paramValue name="analysisDir">$$analysisDir$$</paramValue>
+    <paramValue name="krakenDB">$$krakenDB$$</paramValue>
+    <paramValue name="isPaired">$$isPaired$$</paramValue>
 
   <step name="mirrorToCluster" stepClass="MicrobiomeWorkflow::Main::MirrorToComputeCluster" stepLoadTypes="toCluster">
     <paramValue name="fileOrDirToMirror">$$analysisDir$$</paramValue>

@@ -18,11 +18,13 @@
   </step>
 
   <step name="makeNfCoreFuncscanSamplesheet" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::MakeNfCoreFuncscanSamplesheet">
+    <paramValue name="analysisDir">$$analysisDir$$</paramValue>
     <paramValue name="sampleToFastqFileName">$$sampleToFastqFileName</paramValue>
     <paramValue name="magAnalysisDir">$$magAnalysisDir</paramValue>
 
+  <!-- TODO also some ref dbs to manage here -->
   <step name="makeNfCoreFuncscanParamsFile" stepClass="MicrobiomeWorkflow::Main::WorkflowSteps::MakeNfCoreFuncscanParamsFile">
-    <paramValue name="analysisDir"></paramValue>
+    <paramValue name="analysisDir">$$analysisDir$$</paramValue>
 
   <step name="mirrorToCluster" stepClass="MicrobiomeWorkflow::Main::MirrorToComputeCluster" stepLoadTypes="toCluster">
     <paramValue name="fileOrDirToMirror">$$analysisDir$$</paramValue>
@@ -31,7 +33,6 @@
     <depends name="makeNfCoreFuncscanParamsFile"/>
   </step>
 
-  <!-- TODO also some ref dbs to manage here -->
   <step name="runClusterTask" stepClass="ReFlow::StepClasses::RunAndMonitorNextflow">
     <paramValue name="workingDir">$$analysisDir$$</paramValue>
     <paramValue name="resultsDir">$$analysisDir$$/results</paramValue>

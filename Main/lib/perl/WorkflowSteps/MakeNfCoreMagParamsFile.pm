@@ -12,6 +12,7 @@ sub run {
   my $paramsFilePath = join("/", $self->getWorkflowDataDir(), $self->getParamValue("analysisDir"), "nf-params.json");
   my $samplesheetPath = join("/", $self->getWorkflowDataDir(), $self->getParamValue("analysisDir"), "samplesheet.csv");
   my $krakenDBPath = join("/", $self->getWorkflowDataDir(), $self->getParamValue("krakenDBPath"));
+  my $singleEnd = $self->getParamValue("isPaired") ? "false" : "true";
 
   ## TODO compare these args to what i tested on pmacs and make sure i didnt miss anything
   ## TODO figure out for sure which of these ref dbs we need and update them
@@ -27,6 +28,7 @@ sub run {
     \"input\": \"$samplesheetPath\",
     \"outdir\": \"out\",
     \"kraken2_db\": \"$krakenDBPath\",
+    \"single_end\": $singleEnd,
     \"cat_db\": \"TODO\",
     \"gtdb_db\": \"TODO\",
     \"gtdb_mash\": \"TODO\",
